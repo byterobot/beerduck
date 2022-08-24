@@ -1,0 +1,11 @@
+[site]
+title = ""
+subtitle = ""
+copyright = ""
+footnote = ""
+
+[content]
+# 内容根目录, 监视此目录的更改
+site_dir = ""
+# 笔记目录.
+notes_dir = ""

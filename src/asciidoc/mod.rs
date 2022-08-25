@@ -1,8 +1,8 @@
 use crate::asciidoc::doc::Doc;
-use crate::asciidoc::head::Head;
+use crate::asciidoc::header::Header;
 
 mod doc;
-pub mod head;
+pub mod header;
 
 pub struct AsciiDoc {
     doc: Doc
@@ -13,7 +13,7 @@ impl AsciiDoc {
         Self { doc: Doc::from(text)}
     }
 
-    pub fn head(&self) -> Option<&Head> {
+    pub fn head(&self) -> Option<&Header> {
         match &self.doc {
             Doc::Single(d) => d.head.as_ref(),
             Doc::Hybrid(_, d) => d.head.as_ref(),

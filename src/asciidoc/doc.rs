@@ -1,4 +1,4 @@
-use crate::asciidoc::head::Head;
+use crate::asciidoc::header::Header;
 
 pub enum Doc {
     Single(AdocInner), Hybrid(AdocInner, AdocInner),
@@ -71,7 +71,7 @@ impl TextType {
 }
 
 pub struct AdocInner {
-    pub head: Option<Head>,
+    pub head: Option<Header>,
     pub text: String,
 }
 
@@ -100,8 +100,8 @@ impl AdocInner {
         }
 
         let head = match head.is_empty() {
-            true => Head::new(),
-            _ => Head::from(&head),
+            true => Header::new(),
+            _ => Header::from(&head),
         };
 
         Self { head: Some(head), text: text.trim().to_string() }

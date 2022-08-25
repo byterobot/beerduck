@@ -2,7 +2,7 @@ use chrono::{Date, DateTime, Utc};
 use serde_derive::Deserialize;
 
 #[derive(Deserialize)]
-pub struct Head {
+pub struct Header {
     #[serde(default = "Utc::now")]
     date: DateTime<Utc>, // 发布时间
     #[serde(default)]
@@ -13,7 +13,7 @@ pub struct Head {
     tags: Vec<String>, // ["tag1", "tag2"]
 }
 
-impl Head {
+impl Header {
     pub fn new() -> Self {
         Self::from("{}")
     }

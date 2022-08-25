@@ -1,0 +1,9 @@
+[site]
+title = ""
+subtitle = ""
+copyright = ""
+footnote = ""
+
+# 当前使用的主题名字
+theme = "default"
+

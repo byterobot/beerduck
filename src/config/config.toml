@@ -3,7 +3,10 @@ title = ""
 subtitle = ""
 copyright = ""
 footnote = ""
-
 # 当前使用的主题名字
 theme = "default"
 
+[content]
+# sinagle page name. For example: `about`, so the url is `example.com/about`.
+# The default is empty.
+# single_page = "about"

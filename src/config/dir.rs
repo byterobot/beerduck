@@ -10,8 +10,10 @@ pub struct Dir {
     // #[serde(default = "default_root")]
     #[serde(skip_deserializing)]
     pub root: PathBuf,
-    pub web: PathBuf,
+    pub posts: PathBuf,
     pub notes: PathBuf,
+    // pub temp: PathBuf,
+    pub dist: PathBuf,
     #[serde(rename = "static")]
     pub static_: PathBuf,
     pub templates: PathBuf,
@@ -24,8 +26,10 @@ impl Default for Dir {
         let path = root.as_path();
         Self {
             root: root.clone(),
-            web: path.join("web"),
+            posts: path.join("posts"),
             notes: path.join("notes"),
+            // temp: path.join("_temp"),
+            dist: path.join("dist"),
             static_: path.join("static"),
             templates: path.join("templates"),
             themes: path.join("themes"),

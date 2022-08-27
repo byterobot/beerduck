@@ -20,6 +20,11 @@ pub struct Dir {
     pub themes: PathBuf,
 }
 
+// todo
+// contents/posts, contents/notes
+// contents/posts/static, contents/notes/static
+// contents/posts/<category>/static, contents/notes/<category>/static
+
 impl Default for Dir {
     fn default() -> Self {
         let root = current_dir().expect("get current dir error");

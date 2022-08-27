@@ -1,8 +1,11 @@
+use std::collections::HashSet;
 use anyhow::Error;
+use once_cell::sync::Lazy;
 
 pub mod render;
 pub mod asciidoc;
-pub mod restructure;
+pub mod home;
+pub mod category;
 
 pub async fn render_web() -> Result<(), Error> {
     // 遍历文件,
@@ -20,6 +23,12 @@ pub async fn render_web() -> Result<(), Error> {
     // 解决图片路径问题
     Ok(())
 }
+
+// static EXTS: Lazy<HashSet<String>> = Lazy::new(|| [""])
+//
+// pub fn valid_ext(file_name: &str) -> bool {
+//
+// }
 
 
 

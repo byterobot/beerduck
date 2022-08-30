@@ -12,7 +12,7 @@ pub struct Dir {
     pub root: PathBuf,
     pub posts: PathBuf,
     pub notes: PathBuf,
-    // pub temp: PathBuf,
+    pub temp: PathBuf,
     pub dist: PathBuf,
     #[serde(rename = "static")]
     pub static_: PathBuf,
@@ -33,7 +33,7 @@ impl Default for Dir {
             root: root.clone(),
             posts: path.join("posts"),
             notes: path.join("notes"),
-            // temp: path.join("_temp"),
+            temp: path.join("_temp"),
             dist: path.join("dist"),
             static_: path.join("static"),
             templates: path.join("templates"),

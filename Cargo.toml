@@ -25,6 +25,7 @@ chrono = { version = "0.4.22", features = ["serde"] }
 #deno_core = "0.148.0"
 toml = "0.5.9"
 notify = "4.0.17"
+tl = "0.7.7"
 
 [dev-dependencies]
 futures-await-test = "0.3.0"

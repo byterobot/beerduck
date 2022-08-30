@@ -2,10 +2,10 @@ use std::collections::HashSet;
 use anyhow::Error;
 use once_cell::sync::Lazy;
 
-pub mod render;
 pub mod asciidoc;
-pub mod home;
+pub mod posts;
 pub mod category;
+pub mod page;
 
 pub async fn render_web() -> Result<(), Error> {
     // 遍历文件,

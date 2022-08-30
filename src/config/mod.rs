@@ -38,3 +38,13 @@ pub struct Config {
     #[serde(skip_deserializing)]
     pub dir: Dir,
 }
+
+impl Config {
+    pub fn dist_dir(&self) -> &Path {
+        &self.dir.dist
+    }
+
+    pub fn temp_dir(&self) -> &Path {
+        &self.dir.temp
+    }
+}

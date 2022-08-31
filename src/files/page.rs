@@ -1,3 +1,4 @@
+use std::ffi::OsStr;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -17,27 +18,28 @@ pub struct SinglePage {
 
 #[derive(Debug)]
 pub struct Page {
-    pub path: String,
-    pub title: String,
+    pub permalink: String, // file name with html extension
+    pub title: Option<String>,
     pub author: Option<String>,
-    pub date: Date<Utc>, // if not exists, assign current date.
-    pub lang: String,
-    pub keywords: Vec<String>,
+    pub date: Option<Date<Utc>>,
+    // pub date0: Option<(u16, u8, u8)>,
+    pub keywords: Option<Vec<String>>,
+    pub lang: Option<String>,
     pub html: String,
 }
 
 impl Page {
     pub fn create(path: &Path) -> Result<Self, Error> {
-        let input = render_html(path)?;
+        let input = render_html(path, ["-a", "nofooter"])?;
         let doc = tl::parse(&input, ParserOptions::new())?;
 
         let page = Self {
-            path: get_path(path)?,
-            title: get_title(&doc)?,
+            permalink: get_path(path).ok_or_else(|| anyhow!("no permalink"))?,
+            title: get_title(&doc),
             author: get_author(&doc),
-            date: get_date(&doc).unwrap_or_else(|| Utc::today()),
-            keywords: get_keywords(&doc).unwrap_or_else(|| Vec::new()),
-            lang: get_lang(&doc).unwrap_or_else(|| "en".to_string()),
+            date: get_date(&doc),
+            keywords: get_keywords(&doc),
+            lang: get_lang(&doc),
             html: get_body(&doc).unwrap()
         };
 
@@ -86,35 +88,34 @@ fn get_author(doc: &VDom) -> Option<String> {
     Some(v.as_ref().to_string())
 }
 
-fn get_title(doc: &VDom) -> Result<String, Error> {
-    let title = doc.query_selector("title")
-        .ok_or_else(|| anyhow!("No title tag"))?
-        .next()
-        .ok_or_else(|| anyhow!("No title tag"))?
-        .get(doc.parser())
-        .ok_or_else(|| anyhow!("No title tag"))?
+fn get_title(doc: &VDom) -> Option<String> {
+    let title = doc.query_selector("title")?
+        .next()?
+        .get(doc.parser())?
         .inner_text(doc.parser()).to_string();
-    Ok(title)
+    Some(title)
 }
 
-fn get_path(path: &Path) -> Result<String, Error> {
-    let name = path.file_stem().ok_or(anyhow!("no file name: {:?}", path))?;
-    let name = name.to_str().ok_or(anyhow!("no file name: {:?}", path))?;
-    Ok(format!("{}.html", name))
+fn get_path(path: &Path) -> Option<String> {
+    Some(format!("{}.html", path.file_stem()?.to_str()?))
 }
 
-fn render_html(path: &Path) -> Result<String, Error> {
+fn render_html<S, I>(file: &Path, args: I) -> Result<String, Error>
+    where I: IntoIterator<Item = S>,
+          S: AsRef<OsStr> {
+
     let temp_dir = CONFIG.temp_dir();
-    let doc = AsciiDoc::from(&fs::read_to_string(path)?);
-    let input = temp_dir.join(path.file_name().unwrap());
+    let doc = AsciiDoc::from(&fs::read_to_string(file)?);
+    let input = temp_dir.join(file.file_name().unwrap());
     fs::write(&input, doc.text())?;
 
-    let name = input.file_name().ok_or(anyhow!("no file name for {:?}", path))?;
+    let name = input.file_name().ok_or(anyhow!("no file name for {:?}", file))?;
     let output = temp_dir.join(name).with_extension("html");
 
     let status = Command::new("asciidoctor")
-        .arg("-a")
-        .arg("nofooter")
+        // .arg("-a")
+        // .arg("nofooter")
+        .args(args)
         .arg(input)
         .arg("-o")
         .arg(output.as_path())

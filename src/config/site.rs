@@ -7,4 +7,6 @@ pub struct Site {
     pub copyright: Option<String>,
     pub footnote: Option<String>,
     pub theme: String,
+    pub lang: String,
+    pub path: String,
 }

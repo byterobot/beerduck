@@ -1,73 +1,74 @@
-use std::path::{Path, PathBuf};
+use std::fs;
+use std::path::Path;
 
 use anyhow::{anyhow, Error};
-use chrono::{Date, Utc};
+use serde_derive::Deserialize;
 
-use crate::config::CONFIG;
 use crate::files::page::Page;
 
 pub struct Category {
-    title: Option<String>, // 自定义的可能会有title, 自动生成的一般是 category name.
-    name: String,
-    path: String,
-    html: String,
+    name: String, // category name
+    cfg: Config, // category.toml
+    page: Option<Page>,
     pages: Vec<Page>
+}
+
+#[derive(Default, Deserialize)]
+pub struct Config {
+    permalink: Option<String>,
+    order: bool, // true -> asc by date; false -> desc by date
+    position: u16, // 在 category 目录中的排序
 }
 
 impl Category {
     pub fn create(path: &Path) -> Result<Self, Error> {
-        todo!()
+        let mut category = Category {
+            name: category_name(path)?,
+            cfg: deserialize_config(path)?,
+            page: build_index(path)?,
+            pages: load_pages(path)?,
+        };
+        category.pages.sort_by(|a, b| match category.cfg.order {
+            true => a.date.cmp(&b.date),
+            _ => b.date.cmp(&a.date),
+        });
+
+        Ok(category)
     }
 }
 
+// 缺失的索引页在模板中构建
+fn build_index(path: &Path) -> Result<Option<Page>, Error> {
+    let file = path.join("_index.adoc");
+    match file.exists() {
+        true => Ok(Some(Page::create(&file)?)),
+        _ => Ok(None),
+    }
+}
 
-/*
-fn read_dir(path: &Path) -> Result<Info, Error> {
-    let (name, new_path) = read_name(path)?;
-    let mut index = None;
-    let mut vec = vec![];
+fn load_pages(path: &Path) -> Result<Vec<Page>, Error> {
+    let mut pages = vec![];
     for dir in path.read_dir()? {
         let dir = dir?;
         if let Some(name) = dir.file_name().to_str() {
-            if index == None && name == "_index.adoc" {
-                index = Some(dir.path());
-            } else if name.ends_with(".adoc") {
-                vec.push(dir.path());
+            if name.ends_with(".adoc") && name != "index.adoc" && name != "_index.adoc" {
+                pages.push(Page::create(&dir.path())?);
             }
         }
     }
-
-    Ok(Info { name, new_path, index, vec })
-}*/
-
-fn read_name(path: &Path) -> Result<(String, String), Error> {
-    let category_name = path
-        .file_name().ok_or_else(|| anyhow!("Invalid category name"))?
-        .to_str().ok_or_else(|| anyhow!("Invalid category name"))?
-        .to_string();
-
-    for dir in path.read_dir()? {
-        let a = dir?;
-        if let Some(name) = a.file_name().to_str() {
-            if name.ends_with(".url") && name.starts_with("_") {
-                let new_name = Path::new(name)
-                    .file_stem().ok_or_else(|| anyhow!("Invalid new path"))?
-                    .to_str().ok_or_else(|| anyhow!("Invalid new path"))?
-                    .replacen('_', "", 1);
-                return Ok((category_name, new_name));
-            }
-        }
-    }
-
-    let new_name = category_name.clone();
-    Ok((category_name, new_name))
+    Ok(pages)
 }
-/*
-pub struct CategoryOutput {
-    // category name
-    pub name: String,
-    // (category path, category index html content)
-    pub index: (String, String),
-    // (url name, article html content)
-    pub vec: Vec<(String, String)>,
-}*/
+
+fn category_name(path: &Path) -> Result<String, Error> {
+    path.file_name().ok_or_else(|| anyhow!("Not a folder: {:?}", path))
+        .map(|v| v.to_string_lossy().to_string())
+
+}
+
+fn deserialize_config(path: &Path) -> Result<Config, Error> {
+    let path = path.join("_category.toml");
+    match fs::read_to_string(&path) {
+        Ok(v) => Ok(toml::from_str(&v)?),
+        Err(_) => Ok(Config::default())
+    }
+}

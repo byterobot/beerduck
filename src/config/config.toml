@@ -5,6 +5,8 @@ copyright = ""
 footnote = ""
 # 当前使用的主题名字
 theme = "default"
+lang = "zh-cn"
+path = "posts"
 
 [content]
 # sinagle page name. For example: `about`, so the url is `example.com/about`.

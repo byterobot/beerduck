@@ -1,11 +1,10 @@
-use std::collections::HashMap;
-use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
+
 use anyhow::Error;
 use chrono::{Date, Utc};
-use crate::files::category::Category;
 
-// use crate::files::category::Category;
+use crate::files::category::Category;
+use crate::files::page::Page;
 
 pub fn render() {
     // let pages: HashMap<PathBuf, Page> = HashMap::new(); // articles
@@ -17,14 +16,19 @@ pub fn render() {
 
 pub struct Posts {
     home: String, // 生成
-    single_page: String,
     category: String, // 生成
+    about: Option<Page>,
     categories: Vec<Category>,
 }
 
 impl Posts {
-    pub fn render() {
+    pub fn create(path: &Path) -> Result<Self, Error> {
+        todo!()
+    }
 
+    pub fn render(&self) -> Result<(), Error> {
+        // 首页和 所有 category 列表
+        todo!()
     }
 }
 

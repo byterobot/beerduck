@@ -1,63 +1,75 @@
 use std::ffi::OsStr;
 use std::fs;
+use std::ops::Deref;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use anyhow::{anyhow, Error};
-use chrono::{Date, NaiveDate, Utc};
+use chrono::{Date, Datelike, NaiveDate, Utc};
 use log::error;
+use serde_derive::Serialize;
 use tl::{Parser, ParserOptions, VDom};
 
-use crate::config::CONFIG;
+use crate::config::{CONFIG, Config};
 use crate::files::asciidoc::AsciiDoc;
+use crate::files::render;
+use crate::files::render::Template;
 
 pub struct SinglePage {
     pub path: String,
     pub html: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct Page {
     pub permalink: String, // file name with html extension
     pub title: Option<String>,
     pub author: Option<String>,
-    pub date: Option<Date<Utc>>,
-    // pub date0: Option<(u16, u8, u8)>,
+    pub date: Option<NaiveDate>,
+    pub date_num: Option<(i32, String, String)>,
     pub keywords: Option<Vec<String>>,
-    pub lang: Option<String>,
+    pub description: Option<String>,
+    pub lang: String,
     pub html: String,
 }
 
 impl Page {
     pub fn create(path: &Path) -> Result<Self, Error> {
-        let input = render_html(path, ["-a", "nofooter"])?;
+        let input = convert_html(path, ["-a", "nofooter"])?;
         let doc = tl::parse(&input, ParserOptions::new())?;
-
+        let date = get_date(&doc);
+        let date_num = date.as_ref().map(|v|
+            (v.year(), format!("{:02}", v.month()), format!("{:02}", v.day()))
+        );
         let page = Self {
             permalink: get_path(path).ok_or_else(|| anyhow!("no permalink"))?,
             title: get_title(&doc),
             author: get_author(&doc),
-            date: get_date(&doc),
+            date,
+            date_num,
             keywords: get_keywords(&doc),
-            lang: get_lang(&doc),
+            description: None,
+            lang: get_lang(&doc).unwrap_or_else(|| CONFIG.site.lang.clone()),
             html: get_body(&doc).unwrap()
         };
 
         Ok(page)
     }
+
+    pub fn render(&mut self) -> Result<(), Error> {
+        let v = PageRender { page: &self, config: CONFIG.deref() };
+        self.html = Template::Page.render(&v)?;
+        Ok(())
+    }
 }
 
-fn get_date(doc: &VDom) -> Option<Date<Utc>> {
+fn get_date(doc: &VDom) -> Option<NaiveDate> {
     let v = doc.get_element_by_id("revdate")?
         .get(doc.parser())?
         .inner_text(doc.parser());
-    match NaiveDate::parse_from_str(v.as_ref(), "%Y-%m-%d") {
-        Ok(v) => Some(Date::from_utc(v, Utc)),
-        Err(e) => {
-            error!("error date format");
-            None
-        }
-    }
+    let date = NaiveDate::parse_from_str(v.as_ref(), "%Y-%m-%d")
+        .expect("error date format, must `y-m-d`");
+    Some(date)
 }
 
 fn get_body(doc: &VDom) -> Option<String> {
@@ -100,7 +112,7 @@ fn get_path(path: &Path) -> Option<String> {
     Some(format!("{}.html", path.file_stem()?.to_str()?))
 }
 
-fn render_html<S, I>(file: &Path, args: I) -> Result<String, Error>
+fn convert_html<S, I>(file: &Path, args: I) -> Result<String, Error>
     where I: IntoIterator<Item = S>,
           S: AsRef<OsStr> {
 
@@ -127,23 +139,39 @@ fn render_html<S, I>(file: &Path, args: I) -> Result<String, Error>
     }
 }
 
+#[derive(Serialize)]
+pub struct PageRender<'a> {
+    pub page: &'a Page,
+    pub config: &'a Config,
+}
+
 #[cfg(test)]
 mod test {
     use std::env::current_dir;
+    use std::ops::Deref;
 
     use futures_await_test::async_test;
+    use tera::{Context, Tera};
 
-    use crate::files::page::Page;
+    use crate::config::CONFIG;
+    use crate::files::page::{Page, PageRender};
+    use crate::files::render::Template;
 
     #[async_test]
     async fn test() {
-        let a = current_dir().unwrap();
-        // println!("current: {:?}", a);
-
-        let input = a.as_path().join("test.adoc");
-        // println!("input: {:?}", input.as_path());
-
+        let input = current_dir().unwrap().join("test.adoc");
         let page = Page::create(&input).unwrap();
-        println!("{:?}", page);
+        // println!("{:?}", page);
+
+        let v = PageRender { page: &page, config: CONFIG.deref() };
+        let r = Template::Page.render(&v).unwrap();
+
+        // let c = Context::from_serialize(&v).unwrap();
+        // let mut tera = Tera::new("templates/*.html").unwrap();
+        // tera.autoescape_on(Vec::new());
+        // let r = tera.render("page.html", &c).unwrap();
+        println!("{}", r);
+
     }
+
 }

@@ -35,6 +35,11 @@ impl Category {
 
         Ok(category)
     }
+
+    pub fn render(&self) -> Result<(), Error> {
+        // 此 category 下的page 列表
+        todo!()
+    }
 }
 
 // 缺失的索引页在模板中构建

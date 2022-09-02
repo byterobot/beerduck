@@ -1,15 +1,15 @@
 use std::env::current_dir;
 use std::path::PathBuf;
 
-use serde_derive::Deserialize;
+use serde_derive::{Deserialize, Serialize};
 
 /// 各内容目录
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct Dir {
-    // 内容的根目录, 默认是执行命令的当前工作目录.
-    // #[serde(default = "default_root")]
+    // 内容目录, 默认是执行命令的当前工作目录.
+    // #[serde(default = "workspace")]
     #[serde(skip_deserializing)]
-    pub root: PathBuf,
+    pub workspace: PathBuf,
     pub posts: PathBuf,
     pub notes: PathBuf,
     pub temp: PathBuf,
@@ -20,6 +20,16 @@ pub struct Dir {
     pub themes: PathBuf,
 }
 
+fn workspace() -> PathBuf {
+    let current = current_dir().expect("get current directory error.");
+    println!("build current dir");
+    if cfg!(debug_assertions) {
+        println!("debug mode");
+        return current.join("example");
+    }
+    current
+}
+
 // todo
 // contents/posts, contents/notes
 // contents/posts/static, contents/notes/static
@@ -27,17 +37,22 @@ pub struct Dir {
 
 impl Default for Dir {
     fn default() -> Self {
-        let root = current_dir().expect("get current dir error");
-        let path = root.as_path();
+        let workspace = current_dir().map(|workspace| {
+            if cfg!(debug_assertions) {
+                return workspace.join("example");
+            }
+            workspace
+        }).expect("get current directory error.");
+
         Self {
-            root: root.clone(),
-            posts: path.join("posts"),
-            notes: path.join("notes"),
-            temp: path.join("_temp"),
-            dist: path.join("dist"),
-            static_: path.join("static"),
-            templates: path.join("templates"),
-            themes: path.join("themes"),
+            workspace: workspace.clone(),
+            posts: workspace.join("posts"),
+            notes: workspace.join("notes"),
+            temp: workspace.join("_temp"),
+            dist: workspace.join("dist"),
+            static_: workspace.join("static"),
+            templates: workspace.join("templates"),
+            themes: workspace.join("themes"),
         }
     }
 }

@@ -6,6 +6,7 @@ pub mod asciidoc;
 pub mod posts;
 pub mod category;
 pub mod page;
+pub mod render;
 
 pub async fn render_web() -> Result<(), Error> {
     // 遍历文件,

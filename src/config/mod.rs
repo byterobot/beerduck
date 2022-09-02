@@ -4,7 +4,7 @@ use std::path::{Path, PathBuf};
 
 use anyhow::Error;
 use once_cell::sync::Lazy;
-use serde_derive::Deserialize;
+use serde_derive::{Deserialize, Serialize};
 use crate::config::content::Content;
 
 use crate::config::dir::Dir;
@@ -29,7 +29,7 @@ fn deserialize_config() -> Result<Config, Error> {
     Ok(config)
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct Config {
     pub site: Site,
     pub content: Content,

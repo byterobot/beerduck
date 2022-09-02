@@ -1,12 +1,13 @@
 [site]
-title = ""
-subtitle = ""
+title = "寒月"
+subtitle = "月落乌啼霜满天，江枫渔火对愁眠。"
 copyright = ""
 footnote = ""
+author = ""
 # 当前使用的主题名字
-theme = "default"
+#theme = "default"
 lang = "zh-cn"
-path = "posts"
+slug = "posts"
 
 [content]
 # sinagle page name. For example: `about`, so the url is `example.com/about`.

@@ -20,7 +20,7 @@ pub enum Template {
 impl Template {
     pub fn render(&self, value: impl Serialize) -> Result<String, Error> {
         let template_name = match self {
-            Template::Page => "page.html",
+            Template::Page => "article.html",
             Template::Category => "category.html",
             Template::Categories => "categories.html",
             Template::Index => "index.html",

@@ -14,54 +14,60 @@ use crate::config::{CONFIG, Config};
 use crate::files::asciidoc::AsciiDoc;
 use crate::files::render;
 use crate::files::render::Template;
+use crate::files::template::PageTpl;
 
-pub struct SinglePage {
-    pub path: String,
-    pub html: String,
-}
+// pub struct SimplePage {
+//     pub permalink: String,
+//     pub html: String,
+// }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Default, Serialize)]
 pub struct Page {
+    pub autogen: bool,
     pub permalink: String, // file name with html extension
-    pub title: Option<String>,
-    pub author: Option<String>,
-    pub date: Option<NaiveDate>,
-    pub date_num: Option<(i32, String, String)>,
+    pub title: String,
+    pub author: String,
+    pub html: String,
+    pub lang: String,
     pub keywords: Option<Vec<String>>,
     pub description: Option<String>,
-    pub lang: String,
-    pub html: String,
+    pub summary: Option<String>,
+    pub created_at: NaiveDate,
+    pub created_at_num: (i32, String, String),
+    pub updated_at: Option<NaiveDate>,
 }
 
-impl Page {
-    pub fn create(path: &Path) -> Result<Self, Error> {
-        let input = convert_html(path, ["-a", "nofooter"])?;
-        let doc = tl::parse(&input, ParserOptions::new())?;
-        let date = get_date(&doc);
-        let date_num = date.as_ref().map(|v|
-            (v.year(), format!("{:02}", v.month()), format!("{:02}", v.day()))
-        );
-        let page = Self {
-            permalink: get_path(path).ok_or_else(|| anyhow!("no permalink"))?,
-            title: get_title(&doc),
-            author: get_author(&doc),
-            date,
-            date_num,
-            keywords: get_keywords(&doc),
-            description: None,
-            lang: get_lang(&doc).unwrap_or_else(|| CONFIG.site.lang.clone()),
-            html: get_body(&doc).unwrap()
-        };
-
-        Ok(page)
-    }
-
-    pub fn render(&mut self) -> Result<(), Error> {
-        let v = PageRender { page: &self, config: CONFIG.deref() };
-        self.html = Template::Page.render(&v)?;
-        Ok(())
-    }
+pub fn render_template(tpl: Template, pages: &[Page]) -> Result<Page, Error> {
+    todo!()
 }
+
+// render asciidoc
+pub fn render(file: &Path) -> Result<Page, Error> {
+    let html = convert_adoc(file, ["-a", "nofooter"])?;
+    let doc = tl::parse(&html, ParserOptions::new())?;
+    let date = get_date(&doc);
+    let date_num = date.as_ref().map(|v|
+        (v.year(), format!("{:02}", v.month()), format!("{:02}", v.day()))
+    );
+    let mut page = Page {
+        autogen: false,
+        permalink: get_path(file).ok_or_else(|| anyhow!("missing permalink"))?,
+        title: get_title(&doc).ok_or_else(|| anyhow!("missing title"))?,
+        author: get_author(&doc).ok_or_else(|| anyhow!("missing author"))?,
+        html: get_body(&doc).ok_or_else(|| anyhow!("missing content body"))?,
+        lang: get_lang(&doc).unwrap_or_else(|| CONFIG.site.lang.clone()),
+        keywords: get_keywords(&doc),
+        description: None,
+        summary: None,
+        created_at: date.ok_or_else(|| anyhow!("missing created date"))?,
+        created_at_num: date_num.ok_or_else(|| anyhow!("missing created date"))?,
+        updated_at: None,
+    };
+    page.html = Template::Page.render(&PageTpl::from(&page))?;
+
+    Ok(page)
+}
+
 
 fn get_date(doc: &VDom) -> Option<NaiveDate> {
     let v = doc.get_element_by_id("revdate")?
@@ -112,7 +118,7 @@ fn get_path(path: &Path) -> Option<String> {
     Some(format!("{}.html", path.file_stem()?.to_str()?))
 }
 
-fn convert_html<S, I>(file: &Path, args: I) -> Result<String, Error>
+fn convert_adoc<S, I>(file: &Path, args: I) -> Result<String, Error>
     where I: IntoIterator<Item = S>,
           S: AsRef<OsStr> {
 
@@ -139,11 +145,6 @@ fn convert_html<S, I>(file: &Path, args: I) -> Result<String, Error>
     }
 }
 
-#[derive(Serialize)]
-pub struct PageRender<'a> {
-    pub page: &'a Page,
-    pub config: &'a Config,
-}
 
 #[cfg(test)]
 mod test {

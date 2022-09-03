@@ -7,6 +7,8 @@ pub struct Site {
     pub copyright: Option<String>,
     pub footnote: Option<String>,
     // pub theme: String,
+
+    #[serde(skip_serializing)]
     pub author: String,
     pub lang: String,
     pub slug: String,

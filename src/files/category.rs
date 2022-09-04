@@ -12,13 +12,11 @@ use crate::files::render::Template;
 use crate::files::template::{CategoryTpl, PageTpl};
 
 pub struct Category {
-    name: String, // category name
-
-    nav_page: Page,
-    pages: Vec<Page>,
-
-    position: u16, // 在 category 目录中的排序
-    order: bool, // true -> asc by date; false -> desc by date
+    pub name: String, // category name
+    pub nav_page: Page,
+    pub pages: Vec<Page>,
+    pub position: u16, // 在 category 目录中的排序
+    pub order: bool, // true -> asc by date; false -> desc by date
 }
 
 // category.toml
@@ -36,6 +34,11 @@ pub fn render(folder: &Path) -> Result<Category, Error> {
     let cfg = deserialize_config(folder)?;
     let name = category_name(folder)?;
     let mut pages = render_pages(folder)?;
+    pages.sort_by(|a, b| match cfg.order {
+        true => a.created_at.cmp(&b.created_at),
+        _ => b.created_at.cmp(&a.created_at),
+    });
+
     let page = match &cfg.index {
         Some(v) => pick_index(v.as_ref(), &mut pages)?,
         _ => build_index(&name, cfg.permalink.as_ref(), pages.as_slice())?,
@@ -74,14 +77,16 @@ fn build_index(name: &String, permalink: Option<&String>, pages: &[Page]) -> Res
         permalink: permalink.map(|v| v.clone()).unwrap_or_else(|| format!("{}.html", name)),
         title: name.clone(),
         author: site.author.clone(),
-        html: Template::Category.render(&tpl)?,
+        full_html: Template::Category.render(&tpl)?,
         lang: site.lang.clone(),
         keywords: None,
         description: None,
         summary: None,
         created_at: Default::default(),
         created_at_num: (0, "".to_string(), "".to_string()),
-        updated_at: None
+        updated_at: None,
+        nav_html: None,
+        content_html: Default::default()
     };
 
     Ok(page)

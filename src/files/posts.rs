@@ -6,14 +6,6 @@ use chrono::{Date, Utc};
 use crate::files::category::Category;
 use crate::files::page::Page;
 
-pub fn render() {
-    // let pages: HashMap<PathBuf, Page> = HashMap::new(); // articles
-    // category list
-    // category pages list
-    // index
-    // single page, (not in others) // 如果存在多个, 只选取文件系统列表中的第一个
-}
-
 pub struct Posts {
     home: String, // 生成
     category: String, // 生成
@@ -21,22 +13,12 @@ pub struct Posts {
     categories: Vec<Category>,
 }
 
-impl Posts {
-    pub fn create(path: &Path) -> Result<Self, Error> {
-        todo!()
-    }
+pub fn generate_write() -> Result<(), Error> {
+    // 生成列表, 生成首页, about页
 
-    pub fn render(&self) -> Result<(), Error> {
-        // 首页和 所有 category 列表
-        todo!()
-    }
+
+    todo!()
 }
-
-
-
-
-
-
 
 /*
 fn read_dir(posts: &Path) -> Result<Posts, Error> {

@@ -27,14 +27,17 @@ pub struct Page {
     pub permalink: String, // file name with html extension
     pub title: String,
     pub author: String,
-    pub html: String,
     pub lang: String,
-    pub keywords: Option<Vec<String>>,
+    pub keywords: Option<String>,
     pub description: Option<String>,
     pub summary: Option<String>,
     pub created_at: NaiveDate,
     pub created_at_num: (i32, String, String),
     pub updated_at: Option<NaiveDate>,
+
+    pub nav_html: Option<String>, // id "toc"
+    pub content_html: String, // id "content"
+    pub full_html: String,
 }
 
 pub fn render_template(tpl: Template, pages: &[Page]) -> Result<Page, Error> {
@@ -43,8 +46,8 @@ pub fn render_template(tpl: Template, pages: &[Page]) -> Result<Page, Error> {
 
 // render asciidoc
 pub fn render(file: &Path) -> Result<Page, Error> {
-    let html = convert_adoc(file, ["-a", "nofooter"])?;
-    let doc = tl::parse(&html, ParserOptions::new())?;
+    let temp_html = render::convert_adoc(file, ["-a", "nofooter"])?;
+    let doc = tl::parse(&temp_html, ParserOptions::new())?;
     let date = get_date(&doc);
     let date_num = date.as_ref().map(|v|
         (v.year(), format!("{:02}", v.month()), format!("{:02}", v.day()))
@@ -54,7 +57,6 @@ pub fn render(file: &Path) -> Result<Page, Error> {
         permalink: get_path(file).ok_or_else(|| anyhow!("missing permalink"))?,
         title: get_title(&doc).ok_or_else(|| anyhow!("missing title"))?,
         author: get_author(&doc).ok_or_else(|| anyhow!("missing author"))?,
-        html: get_body(&doc).ok_or_else(|| anyhow!("missing content body"))?,
         lang: get_lang(&doc).unwrap_or_else(|| CONFIG.site.lang.clone()),
         keywords: get_keywords(&doc),
         description: None,
@@ -62,34 +64,42 @@ pub fn render(file: &Path) -> Result<Page, Error> {
         created_at: date.ok_or_else(|| anyhow!("missing created date"))?,
         created_at_num: date_num.ok_or_else(|| anyhow!("missing created date"))?,
         updated_at: None,
+        nav_html: get_nav(&doc),
+        content_html: get_content(&doc).ok_or_else(|| anyhow!("missing content"))?,
+        full_html: Default::default(),
     };
-    page.html = Template::Page.render(&PageTpl::from(&page))?;
+    page.full_html = Template::Page.render(&PageTpl::from(&page))?;
 
     Ok(page)
 }
 
+fn get_content(doc: &VDom) -> Option<String> {
+    let v = doc.get_element_by_id("content")?
+        .get(doc.parser())?
+        .outer_html(doc.parser());
+    Some(v.trim().to_string())
+}
+
+fn get_nav(doc: &VDom) -> Option<String> {
+    let v = doc.get_element_by_id("toc")?
+        .get(doc.parser())?
+        .outer_html(doc.parser());
+    Some(v.trim().to_string())
+}
 
 fn get_date(doc: &VDom) -> Option<NaiveDate> {
     let v = doc.get_element_by_id("revdate")?
         .get(doc.parser())?
         .inner_text(doc.parser());
     let date = NaiveDate::parse_from_str(v.as_ref(), "%Y-%m-%d")
-        .expect("error date format, must `y-m-d`");
+        .expect("error date format, must `yyyy-mm-dd` format");
     Some(date)
 }
 
-fn get_body(doc: &VDom) -> Option<String> {
-    let v = doc.query_selector("body")?.next()?
-        .get(doc.parser())?
-        .inner_html(doc.parser());
-    Some(v.trim().to_string())
-}
-
-fn get_keywords(doc: &VDom) -> Option<Vec<String>> {
+fn get_keywords(doc: &VDom) -> Option<String> {
     let a = doc.query_selector(r#"meta[name="keywords"]"#)?
         .next()?.get(doc.parser())?.as_tag()?.attributes().get("content")??;
-    let b = String::from_utf8(a.as_bytes().to_vec()).ok()?;
-    Some(b.split(',').map(|v| v.to_string()).collect())
+    String::from_utf8(a.as_bytes().to_vec()).ok()
 }
 
 fn get_lang(doc: &VDom) -> Option<String> {
@@ -118,33 +128,6 @@ fn get_path(path: &Path) -> Option<String> {
     Some(format!("{}.html", path.file_stem()?.to_str()?))
 }
 
-fn convert_adoc<S, I>(file: &Path, args: I) -> Result<String, Error>
-    where I: IntoIterator<Item = S>,
-          S: AsRef<OsStr> {
-
-    let temp_dir = CONFIG.temp_dir();
-    let doc = AsciiDoc::from(&fs::read_to_string(file)?);
-    let input = temp_dir.join(file.file_name().unwrap());
-    fs::write(&input, doc.text())?;
-
-    let name = input.file_name().ok_or(anyhow!("no file name for {:?}", file))?;
-    let output = temp_dir.join(name).with_extension("html");
-
-    let status = Command::new("asciidoctor")
-        // .arg("-a")
-        // .arg("nofooter")
-        .args(args)
-        .arg(input)
-        .arg("-o")
-        .arg(output.as_path())
-        .status()?;
-
-    match status.success() {
-        true => Ok(fs::read_to_string(output.as_path())?),
-        _ => Err(anyhow!("render file exit error")),
-    }
-}
-
 
 #[cfg(test)]
 mod test {
@@ -155,23 +138,23 @@ mod test {
     use tera::{Context, Tera};
 
     use crate::config::CONFIG;
-    use crate::files::page::{Page, PageRender};
+    use crate::files::page::{Page, render};
     use crate::files::render::Template;
 
     #[async_test]
     async fn test() {
         let input = current_dir().unwrap().join("test.adoc");
-        let page = Page::create(&input).unwrap();
-        // println!("{:?}", page);
+        let page = render(&input).unwrap();
+        println!("{}", page.full_html);
 
-        let v = PageRender { page: &page, config: CONFIG.deref() };
-        let r = Template::Page.render(&v).unwrap();
+        // let v = PageRender { page: &page, config: CONFIG.deref() };
+        // let r = Template::Page.render(&v).unwrap();
 
         // let c = Context::from_serialize(&v).unwrap();
         // let mut tera = Tera::new("templates/*.html").unwrap();
         // tera.autoescape_on(Vec::new());
         // let r = tera.render("page.html", &c).unwrap();
-        println!("{}", r);
+        // println!("{}", r);
 
     }
 

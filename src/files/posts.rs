@@ -20,29 +20,4 @@ pub fn generate_write() -> Result<(), Error> {
     todo!()
 }
 
-/*
-fn read_dir(posts: &Path) -> Result<Posts, Error> {
-    let mut single_page = None;
-    for dir in posts.read_dir()? {
-        let dir = dir?;
-        if let Some(v) = dir.file_name().to_str() {
-            if v.ends_with(".adoc") && dir.path().is_file() {
-                single_page = Some(dir.path());
-                break;
-            }
-        }
-    }
 
-    let mut categories = vec![];
-    for dir in posts.read_dir()? {
-        let category = Category::from(&dir?.path());
-        categories.push(category);
-        // if !category.vec.is_empty() {
-        //     categories.push(category);
-        // }
-    }
-
-    todo!()
-    // Ok(Posts { categories, single_page, })
-}
-*/

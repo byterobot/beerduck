@@ -11,5 +11,5 @@ pub struct Site {
     #[serde(skip_serializing)]
     pub author: String,
     pub lang: String,
-    pub slug: String,
+    pub slug: Option<String>,
 }

@@ -3,3 +3,4 @@
 // pub(crate) mod asciidoc;
 pub(crate) mod config;
 pub(crate) mod files;
+pub(crate) mod site;

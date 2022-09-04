@@ -57,7 +57,7 @@ pub fn render(folder: &Path) -> Result<Category, Error> {
 fn pick_index(index_file: &str, pages: &mut Vec<Page>) -> Result<Page, Error> {
     let permalink = index_file.replace(r"\.(adoc)$", ".html");
     let item = pages.iter().enumerate()
-        .find(|(a, b)| &b.permalink == &permalink)
+        .find(|(a, b)| &b.file_name == &permalink)
         .ok_or_else(|| anyhow!("no page for: {}", permalink))?;
     Ok(pages.remove(item.0))
 }
@@ -74,7 +74,7 @@ fn build_index(name: &String, permalink: Option<&String>, pages: &[Page]) -> Res
 
     let page = Page {
         autogen: true,
-        permalink: permalink.map(|v| v.clone()).unwrap_or_else(|| format!("{}.html", name)),
+        file_name: permalink.map(|v| v.clone()).unwrap_or_else(|| format!("{}.html", name)),
         title: name.clone(),
         author: site.author.clone(),
         full_html: Template::Category.render(&tpl)?,

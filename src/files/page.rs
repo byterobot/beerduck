@@ -23,8 +23,11 @@ use crate::files::template::PageTpl;
 
 #[derive(Debug, Default, Serialize)]
 pub struct Page {
-    pub autogen: bool,
-    pub permalink: String, // file name with html extension
+    pub autogen: bool, // 是的话, header 只显示标题,其他都不显示
+    // pub category: (String, String), // name, permalink
+    // pub category_name: String,
+    // pub category_permalink: String,
+    pub file_name: String, // file_name.adoc
     pub title: String,
     pub author: String,
     pub lang: String,
@@ -34,7 +37,6 @@ pub struct Page {
     pub created_at: NaiveDate,
     pub created_at_num: (i32, String, String),
     pub updated_at: Option<NaiveDate>,
-
     pub nav_html: Option<String>, // id "toc"
     pub content_html: String, // id "content"
     pub full_html: String,
@@ -54,7 +56,7 @@ pub fn render(file: &Path) -> Result<Page, Error> {
     );
     let mut page = Page {
         autogen: false,
-        permalink: get_path(file).ok_or_else(|| anyhow!("missing permalink"))?,
+        file_name: get_name(file).ok_or_else(|| anyhow!("missing filename"))?,
         title: get_title(&doc).ok_or_else(|| anyhow!("missing title"))?,
         author: get_author(&doc).ok_or_else(|| anyhow!("missing author"))?,
         lang: get_lang(&doc).unwrap_or_else(|| CONFIG.site.lang.clone()),
@@ -124,8 +126,8 @@ fn get_title(doc: &VDom) -> Option<String> {
     Some(title)
 }
 
-fn get_path(path: &Path) -> Option<String> {
-    Some(format!("{}.html", path.file_stem()?.to_str()?))
+fn get_name(path: &Path) -> Option<String> {
+    path.file_stem()?.to_str().map(|v| v.to_string())
 }
 
 

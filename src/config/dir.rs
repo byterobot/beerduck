@@ -13,7 +13,7 @@ pub struct Dir {
     pub posts: PathBuf,
     pub notes: PathBuf,
     pub temp: PathBuf,
-    pub dist: PathBuf,
+    pub publish: PathBuf,
     #[serde(rename = "static")]
     pub static_: PathBuf,
     pub templates: PathBuf,
@@ -49,7 +49,7 @@ impl Default for Dir {
             posts: workspace.join("posts"),
             notes: workspace.join("notes"),
             temp: workspace.join("_temp"),
-            dist: workspace.join("dist"),
+            publish: workspace.join("dist"),
             static_: workspace.join("static"),
             templates: workspace.join("templates"),
             themes: workspace.join("themes"),

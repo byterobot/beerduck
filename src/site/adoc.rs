@@ -6,6 +6,14 @@ use once_cell::sync::Lazy;
 
 use crate::config::CONFIG;
 
+pub struct AdocFile {
+    pub file_name: String,
+    pub category_name: Option<String>, // None is single page
+    pub adoc_absolute: PathBuf,
+    pub html_relative: PathBuf,
+    pub html_absolute: PathBuf,
+}
+
 // file.adoc -> file info
 pub static ADOC_FILES: Lazy<HashMap<String, AdocFile>> = Lazy::new(|| {
     scan_adoc().expect("scan adoc files error")
@@ -42,28 +50,20 @@ fn read_adoc(path: &Path, category: Option<&String>) -> Result<Option<AdocFile>,
     if let Some(name) = name.to_str() {
         let html_name = name.replace(r"\.(adoc)$", ".html");
         let html_rel = match category.is_some() && CONFIG.site.slug.is_some() {
-            true => format!("/{}/{}", CONFIG.site.slug.as_ref().unwrap(), html_name),
-            _ => format!("/{}", html_name),
+            true => format!("{}/{}", CONFIG.site.slug.as_ref().unwrap(), html_name),
+            _ => format!("{}", html_name), // single page
         };
 
         if name.ends_with(".adoc") {
             let file = AdocFile {
                 file_name: name.to_string(),
-                adoc_absolute: path.to_path_buf(),
-                html_absolute: CONFIG.dir.dist.join(html_name),
-                html_relative: PathBuf::from(html_rel),
                 category_name: category.map(|v| v.clone()),
+                adoc_absolute: path.to_path_buf(),
+                html_relative: PathBuf::from(&html_rel),
+                html_absolute: CONFIG.dir.publish.join(html_rel),
             };
             return Ok(Some(file))
         }
     }
     Ok(None)
-}
-
-pub struct AdocFile {
-    pub file_name: String,
-    pub adoc_absolute: PathBuf,
-    pub html_absolute: PathBuf,
-    pub html_relative: PathBuf,
-    pub category_name: Option<String>, // None is single page
 }

@@ -41,7 +41,7 @@ pub struct Config {
 
 impl Config {
     pub fn dist_dir(&self) -> &Path {
-        &self.dir.dist
+        &self.dir.publish
     }
 
     pub fn temp_dir(&self) -> &Path {

@@ -47,7 +47,7 @@ impl Default for Workspace {
             root: workspace.clone(),
             posts: workspace.join("posts"),
             notes: workspace.join("notes"),
-            temp: workspace.join("_temp"),
+            temp: workspace.join("temp"),
             publish: workspace.join("publish"),
             static_: workspace.join("static"),
             templates: workspace.join("templates"),

@@ -6,6 +6,7 @@ pub(crate) mod article;
 
 pub fn generate_site() -> Result<(), Error> {
     for (k, v) in DICT.adoc_map() {
+        // println!("{} -> {:?}", k, v);
         let a = article::render(&v.adoc_absolute, &v.html_absolute)?;
     }
 

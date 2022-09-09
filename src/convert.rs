@@ -32,6 +32,9 @@ impl Template {
         };
 
         let html = TERA.render(template_name, &Context::from_serialize(value)?)?;
+        if let Some(parent) = target.parent() {
+            fs::create_dir_all(parent)?;
+        }
         fs::write(target, html)?;
 
         Ok(())
@@ -41,7 +44,7 @@ impl Template {
 /// Covert adoc file to html.
 pub fn convert_adoc(adoc: &Path) -> Result<String, Error> {
     let temp_dir = CONFIG.workspace.temp.as_path();
-    // let temp_dir = CONFIG.temp_dir();
+    fs::create_dir_all(temp_dir)?;
     let doc = AsciiDoc::from(&fs::read_to_string(adoc)?);
     let input = temp_dir.join(adoc.file_name().unwrap());
     fs::write(&input, doc.text())?;

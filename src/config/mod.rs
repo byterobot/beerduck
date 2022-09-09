@@ -1,31 +1,24 @@
-use std::env::current_dir;
 use std::fs;
-use std::path::{Path, PathBuf};
 
 use anyhow::Error;
 use once_cell::sync::Lazy;
 use serde_derive::{Deserialize, Serialize};
-use crate::config::content::Content;
 
-use crate::config::dir::Dir;
+use crate::config::content::Content;
+use crate::config::workspace::Workspace;
 use crate::config::site::Site;
 
-pub mod dir;
+pub mod workspace;
 pub mod site;
 pub mod content;
 
-static CFG_TEXT: &str = include_str!("config.toml");
-
-pub static CONFIG: Lazy<Config> = Lazy::new(|| {
-    let mut config = deserialize_config().unwrap();
-
-    config
-});
+pub static CONFIG: Lazy<Config> = Lazy::new(|| deserialize_config().unwrap());
 
 fn deserialize_config() -> Result<Config, Error> {
-    let mut config: Config = toml::from_str(CFG_TEXT)?;
-    config.cfg = CFG_TEXT.to_string();
-    config.dir = Dir::default();
+    let workspace = Workspace::default();
+    let txt = fs::read_to_string(workspace.root.join("config.toml"))?;
+    let mut config: Config = toml::from_str(&txt)?;
+    config.workspace = workspace;
     Ok(config)
 }
 
@@ -34,17 +27,5 @@ pub struct Config {
     pub site: Site,
     pub content: Content,
     #[serde(skip_deserializing)]
-    pub cfg: String,
-    #[serde(skip_deserializing)]
-    pub dir: Dir,
-}
-
-impl Config {
-    pub fn dist_dir(&self) -> &Path {
-        &self.dir.publish
-    }
-
-    pub fn temp_dir(&self) -> &Path {
-        &self.dir.temp
-    }
+    pub workspace: Workspace,
 }

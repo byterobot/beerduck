@@ -3,8 +3,8 @@ use serde_derive::Serialize;
 
 use crate::config::CONFIG;
 use crate::config::site::Site;
-use crate::render::article::Page;
-use crate::site::category::{CATEGORIES, CATEGORY};
+use crate::dict::DICT;
+use crate::site::article::Page;
 
 #[derive(Serialize)]
 pub struct PageTpl<'a> {
@@ -28,10 +28,9 @@ pub struct PageTpl<'a> {
 impl<'a> PageTpl<'a> {
     pub fn from(page: &'a Page, nav_html: Option<&'a String>, content_html: &'a String) -> Self {
         let c = &page.created_at;
-        let category_name = CATEGORY.get(&page.file_name)
+        let category_name = DICT.get_category_name(&page.file_name)
             .expect("the category name not found.");
-        let category = CATEGORIES.get(category_name)
-            .expect("the category not found");
+        let category = DICT.get_category(category_name).expect("the category not found");
         let category_link = category.html_relative.to_str().unwrap().to_string();
 
         PageTpl {

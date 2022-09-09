@@ -2,6 +2,6 @@
 
 pub(crate) mod asciidoc;
 pub(crate) mod config;
-// pub(crate) mod files;
 pub(crate) mod site;
-pub(crate) mod render;
+pub(crate) mod convert;
+pub(crate) mod dict;

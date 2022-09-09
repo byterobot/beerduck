@@ -2,16 +2,20 @@
 Firstname Lastname <author@asciidoctor.org>
 2022-08-23
 :toc:
-:author: zhangsan
+:toc-title: 大纲
+//:author: zhangsan
 :keywords: haha,wowo,中文
 :lang: zh-cn
+:description: 一段描述
+:docdate: 2019-01-19
+//:last-update-label: 2019-01-19
 
 //:icons: font
 //:url-quickref: https://docs.asciidoctor.org/asciidoc/latest/syntax-quick-reference/
 
 Content entered directly below the header but before the first section heading is called the preamble.
 
-== First level heading
+== 中文试试看First level heading
 
 This is a paragraph with a *bold* word and an _italicized_ word.
 

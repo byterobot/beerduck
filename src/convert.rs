@@ -10,10 +10,8 @@ use tera::{Context, Tera};
 use crate::config::CONFIG;
 use crate::asciidoc::AsciiDoc;
 
-mod article;
-
 static TERA: Lazy<Tera> = Lazy::new(|| {
-    let dir = CONFIG.dir.templates.join("*.html");
+    let dir = CONFIG.workspace.templates.join("*.html");
     let dir = dir.to_str().expect("Invalid directory for templates");
     let mut tera = Tera::new(dir).expect("new tera error");
     tera.autoescape_on(Vec::new());
@@ -41,8 +39,9 @@ impl Template {
 }
 
 /// Covert adoc file to html.
-pub fn convert(adoc: &Path) -> Result<String, Error> {
-    let temp_dir = CONFIG.temp_dir();
+pub fn convert_adoc(adoc: &Path) -> Result<String, Error> {
+    let temp_dir = CONFIG.workspace.temp.as_path();
+    // let temp_dir = CONFIG.temp_dir();
     let doc = AsciiDoc::from(&fs::read_to_string(adoc)?);
     let input = temp_dir.join(adoc.file_name().unwrap());
     fs::write(&input, doc.text())?;

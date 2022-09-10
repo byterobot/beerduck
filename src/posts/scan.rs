@@ -43,7 +43,6 @@ fn scan_category(path: &Path) -> Result<Category, Error> {
                 let file = TextFile { name: name.into(), path: dir.path() };
                 files.push(file);
             } else if name == "config.toml" {
-                // let t = fs::read_to_string(dir.path())?;
                 config = toml::from_str(&fs::read_to_string(dir.path())?)?;
             }
         }

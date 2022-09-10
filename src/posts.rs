@@ -36,9 +36,9 @@ pub fn generate_site() -> Result<(), Error> {
     // let target = publish.join(format!("/categories.html"));
     // Template::Categories.render_write(&tpl, &target)?;
     for c in &posts.categories {
-        // let tpl = CategoryTpl::create(&c.index);
-        // let target = publish.join(c.href());
-        // Template::Category.render_write(&tpl, &target)?;
+        let tpl = CategoryTpl::create(&c.index);
+        let target = publish.join(c.href());
+        Template::Category.render_write(&tpl, &target)?;
         for a in &c.files {
             let url_name = REG.replace(&a.name, ".html");
             let path = CONFIG.site.slug.as_ref()
@@ -73,13 +73,13 @@ pub struct Category {
 }
 
 impl Category {
-    pub fn alias(&self) -> String {
-        self.config.alias_name.as_ref().unwrap_or_else(|| &self.name).clone()
-    }
+    // pub fn alias(&self) -> String {
+    //     self.config.alias_name.as_ref().unwrap_or_else(|| &self.name).clone()
+    // }
 
     fn href(&self) -> String {
-        // let l = self.config.alias_name.as_ref().unwrap_or_else(|| &self.name);
-        format!("/categories/{}.html", self.alias())
+        let l = self.config.alias_name.as_ref().unwrap_or_else(|| &self.name);
+        format!("/categories/{}.html", l)
     }
 
     pub fn is_valid(&self) -> bool {
@@ -113,7 +113,7 @@ pub struct Preview {
     pub created_at: NaiveDate,
     pub summary: Option<String>,
     pub category: String,
-    pub category_alias: String,
+    pub category_href: String,
 }
 
 static REG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.(adoc)$").unwrap());

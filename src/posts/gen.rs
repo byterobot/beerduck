@@ -17,10 +17,12 @@ pub fn gen_categories(categories: &[Category]) -> Result<Generated, Error> {
             summary: None,
             url_name: "".to_string(),
             category: c.name.clone(),
-            category_alias: c.alias(),
+            category_href: c.href(),
         };
         items.push(preview);
     }
+
+    // todo 给 items 排序
 
     let g = Generated { title: "".to_string(), items };
     Ok(g)
@@ -33,6 +35,9 @@ pub fn gen_category(c: &Category) -> Result<Generated, Error> {
     for f in &c.files {
         items.push(build_preview(f, c)?);
     }
+
+    // todo 给 items 排序
+
     let g = Generated { title: c.name.clone(), items };
     Ok(g)
 }
@@ -49,7 +54,7 @@ fn build_preview(f: &TextFile, c: &Category) -> Result<Preview, Error> {
         created_at: page.created_at,
         summary: page.summary,
         category: c.name.clone(),
-        category_alias: c.alias(),
+        category_href: c.href(),
     };
     Ok(preview)
 }

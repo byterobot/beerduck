@@ -32,11 +32,11 @@ pub fn generate_site() -> Result<(), Error> {
 
     // render
     let publish = &CONFIG.workspace.publish;
-    // let tpl = CategoriesTpl::create(&posts.categories_index);
-    // let target = publish.join(format!("/categories.html"));
-    // Template::Categories.render_write(&tpl, &target)?;
+    let tpl = CategoriesTpl::from(&posts.categories_index);
+    let target = publish.join(format!("/categories.html"));
+    Template::Categories.render_write(&tpl, &target)?;
     for c in &posts.categories {
-        let tpl = CategoryTpl::create(&c.index);
+        let tpl = CategoryTpl::from(&c.index);
         let target = publish.join(c.href());
         Template::Category.render_write(&tpl, &target)?;
         for a in &c.files {
@@ -44,6 +44,7 @@ pub fn generate_site() -> Result<(), Error> {
             let path = CONFIG.site.slug.as_ref()
                 .map(|v| format!("{}/{}", v, url_name))
                 .unwrap_or_else(|| url_name.to_string());
+
             let target = publish.join(path);
             let tpl = article::build_tpl(&a.path, c)?;
             Template::Article.render_write(&tpl, &target)?;
@@ -65,6 +66,16 @@ pub struct TextFile {
     pub path: PathBuf,
 }
 
+impl TextFile {
+    pub fn href(&self) -> String {
+        let url_name = REG.replace(&self.name, ".html");
+        let href = CONFIG.site.slug.as_ref()
+            .map(|v| format!("/{}/{}", v, url_name))
+            .unwrap_or_else(|| format!("/{}", url_name));
+        href
+    }
+}
+
 pub struct Category {
     pub name: String,
     pub files: Vec<TextFile>,
@@ -73,10 +84,6 @@ pub struct Category {
 }
 
 impl Category {
-    // pub fn alias(&self) -> String {
-    //     self.config.alias_name.as_ref().unwrap_or_else(|| &self.name).clone()
-    // }
-
     fn href(&self) -> String {
         let l = self.config.alias_name.as_ref().unwrap_or_else(|| &self.name);
         format!("/categories/{}.html", l)
@@ -108,7 +115,7 @@ pub struct Generated {
 
 pub struct Preview {
     pub title: String,
-    pub url_name: String, // no extension
+    pub href: String,
     pub pin: bool,
     pub created_at: NaiveDate,
     pub summary: Option<String>,

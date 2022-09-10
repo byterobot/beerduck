@@ -12,10 +12,10 @@ pub fn gen_categories(categories: &[Category]) -> Result<Generated, Error> {
     for c in categories {
         let preview = Preview {
             title: "".to_string(),
+            href: "".to_string(),
             pin: false,
             created_at: Default::default(),
             summary: None,
-            url_name: "".to_string(),
             category: c.name.clone(),
             category_href: c.href(),
         };
@@ -49,7 +49,7 @@ fn build_preview(f: &TextFile, c: &Category) -> Result<Preview, Error> {
     let file_name = file.file_name().unwrap().to_str().unwrap();
     let preview = Preview {
         title: page.title,
-        url_name: ADOC_REG.replace(file_name, "").to_string(),
+        href: f.href(),
         pin: config.pin.is_some() && config.pin.as_ref().unwrap().as_str() == file_name,
         created_at: page.created_at,
         summary: page.summary,

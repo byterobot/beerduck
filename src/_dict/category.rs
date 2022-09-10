@@ -32,11 +32,14 @@ pub struct Category {
     pub path: PathBuf,
     pub position: u16, // 在 category 目录中的排序
     pub date_asc: bool, // true -> asc by date; false -> desc by date
+
     pub adoc_name: Option<String>, // nav.adoc
     pub adoc_absolute: Option<PathBuf>,
+
     pub html_name: String, // nav.html or category_name.html or new_name.html
     pub html_relative: PathBuf,
     pub html_absolute: PathBuf,
+
     pub adoc_files: Vec<String>,
 }
 

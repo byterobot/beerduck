@@ -1,7 +1,63 @@
-use chrono::NaiveDate;
-use tl::VDom;
+use std::path::Path;
 
-/// Extract dom info
+use anyhow::{anyhow, Error};
+use chrono::NaiveDate;
+use serde_derive::Serialize;
+use tl::{ParserOptions, VDom};
+
+use crate::config::CONFIG;
+use crate::convert;
+
+#[derive(Debug, Default, Serialize)]
+pub struct Page {
+    pub title: String,
+    pub author: String,
+    pub lang: String,
+    pub keywords: Option<String>,
+    pub description: Option<String>,
+    pub summary: Option<String>,
+    pub created_at: NaiveDate,
+    pub updated_at: Option<NaiveDate>,
+    pub nav_html: Option<String>, // id "toc"
+    pub content_html: String, // id "content"
+}
+
+impl Page {
+    pub fn from(adoc_file: &Path) -> Result<Self, Error> {
+        parse(adoc_file, true)
+    }
+
+    pub fn from_simple(adoc_file: &Path) -> Result<Self, Error>{
+        parse(adoc_file, false)
+    }
+}
+
+fn parse(adoc: &Path, full: bool) -> Result<Page, Error> {
+    // 转换成 html
+    let html = convert::convert_adoc(adoc)?;
+    let doc = tl::parse(&html, ParserOptions::new())?;
+
+    // 提取dom
+    let mut page = Page::default();
+    page.title = get_title(&doc).ok_or_else(|| anyhow!("missing title"))?;
+    page.author = get_author(&doc).ok_or_else(|| anyhow!("missing author"))?;
+    page.summary = None;
+    page.created_at = get_date(&doc).ok_or_else(|| anyhow!("missing created date"))?;
+    page.updated_at = None;
+
+    if full {
+        page.lang = get_lang(&doc).unwrap_or_else(|| CONFIG.site.lang.clone());
+        page.keywords = get_keywords(&doc);
+        page.description = get_description(&doc);
+        page.nav_html = get_nav(&doc);
+        page.content_html = get_content(&doc).ok_or_else(|| anyhow!("missing content"))?;
+    }
+
+    Ok(page)
+}
+
+
+// Extract dom info
 
 pub fn get_title(doc: &VDom) -> Option<String> {
     let title = doc.query_selector("title")?
@@ -59,7 +115,3 @@ pub fn get_content(doc: &VDom) -> Option<String> {
         .outer_html(doc.parser());
     Some(v.trim().to_string())
 }
-
-// fn get_name(path: &Path) -> Option<String> {
-//     path.file_stem()?.to_str().map(|v| v.to_string())
-// }

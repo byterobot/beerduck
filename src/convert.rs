@@ -19,16 +19,17 @@ static TERA: Lazy<Tera> = Lazy::new(|| {
 });
 
 pub enum Template {
-    Page, Category, Categories, Index,
+    Article, Category, Categories, Index, About,
 }
 
 impl Template {
     pub fn render_write(&self, value: impl Serialize, target: &Path) -> Result<(), Error> {
         let template_name = match self {
-            Template::Page => "article.html",
+            Template::Article => "article.html",
             Template::Category => "category.html",
             Template::Categories => "categories.html",
             Template::Index => "index.html",
+            Template::About => "about.html"
         };
 
         let html = TERA.render(template_name, &Context::from_serialize(value)?)?;

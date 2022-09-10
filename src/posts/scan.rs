@@ -55,6 +55,11 @@ fn scan_category(path: &Path) -> Result<Category, Error> {
         config,
         index: Default::default()
     };
+
+    if !c.is_valid() {
+        Err(anyhow!("invalid category info"))?;
+    }
+
     Ok(c)
 }
 

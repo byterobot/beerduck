@@ -32,7 +32,7 @@ pub fn build_tpl<'a>(adoc_file: &'a Path, category: &'a Category) -> Result<Arti
     let page = Page::from(adoc_file)?;
     let c = page.created_at;
 
-    let category_link = category.link();
+    let category_link = category.href();
     let created_at = (c.year(), format!("{:02}", c.month()), format!("{:02}", c.day()));
     let updated_at = page.updated_at.as_ref().map(|u|
         (u.year(), format!("{:02}", u.month()), format!("{:02}", u.day()))
@@ -41,7 +41,7 @@ pub fn build_tpl<'a>(adoc_file: &'a Path, category: &'a Category) -> Result<Arti
     let tpl = ArticleTpl {
         site: &CONFIG.site,
         category_name: category.name.clone(),
-        category_link: category.link(),
+        category_link: category.href(),
         title: page.title,
         author: page.author,
         lang: page.lang,

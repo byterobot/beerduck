@@ -2,10 +2,16 @@ use std::path::PathBuf;
 
 use anyhow::Error;
 use chrono::NaiveDate;
+use once_cell::sync::Lazy;
+use regex::Regex;
 use serde_derive::Deserialize;
 
 use crate::config::CONFIG;
+use crate::convert::Template;
 use crate::posts::scan::scan_files;
+use crate::posts::tpl::article;
+use crate::posts::tpl::article::ArticleTpl;
+use crate::posts::tpl::preview::{CategoriesTpl, CategoryTpl};
 
 mod scan;
 mod gen;
@@ -22,8 +28,27 @@ pub fn generate_site() -> Result<(), Error> {
     for c in posts.categories.iter_mut() {
         c.index = gen::gen_category(c)?;
     }
+    // todo build index
 
     // render
+    let publish = &CONFIG.workspace.publish;
+    // let tpl = CategoriesTpl::create(&posts.categories_index);
+    // let target = publish.join(format!("/categories.html"));
+    // Template::Categories.render_write(&tpl, &target)?;
+    for c in &posts.categories {
+        // let tpl = CategoryTpl::create(&c.index);
+        // let target = publish.join(c.href());
+        // Template::Category.render_write(&tpl, &target)?;
+        for a in &c.files {
+            let url_name = REG.replace(&a.name, ".html");
+            let path = CONFIG.site.slug.as_ref()
+                .map(|v| format!("{}/{}", v, url_name))
+                .unwrap_or_else(|| url_name.to_string());
+            let target = publish.join(path);
+            let tpl = article::build_tpl(&a.path, c)?;
+            Template::Article.render_write(&tpl, &target)?;
+        }
+    }
 
     Ok(())
 }
@@ -48,10 +73,22 @@ pub struct Category {
 }
 
 impl Category {
-    pub fn link(&self) -> String {
-        let l = self.config.alias_name.as_ref().unwrap_or_else(|| &self.name);
-        format!("categories/{}.html", l)
+    pub fn alias(&self) -> String {
+        self.config.alias_name.as_ref().unwrap_or_else(|| &self.name).clone()
     }
+
+    fn href(&self) -> String {
+        // let l = self.config.alias_name.as_ref().unwrap_or_else(|| &self.name);
+        format!("/categories/{}.html", self.alias())
+    }
+
+    pub fn is_valid(&self) -> bool {
+        !self.name.trim().is_empty() && self.name.trim() != "index" &&
+        self.config.alias_name.as_ref()
+            .map(|v| !v.trim().is_empty() && v.trim() != "index")
+            .unwrap_or(true)
+    }
+
 }
 
 // category.toml
@@ -71,10 +108,22 @@ pub struct Generated {
 
 pub struct Preview {
     pub title: String,
+    pub url_name: String, // no extension
     pub pin: bool,
     pub created_at: NaiveDate,
     pub summary: Option<String>,
-    pub link_name: String,
     pub category: String,
-    pub category_link_name: String,
+    pub category_alias: String,
+}
+
+static REG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.(adoc)$").unwrap());
+
+#[cfg(test)]
+mod test {
+    use crate::posts::generate_site;
+
+    #[test]
+    fn test() {
+        generate_site().unwrap();
+    }
 }

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use anyhow::Error;
+use anyhow::{anyhow, Error};
 use once_cell::sync::Lazy;
 use regex::Regex;
 
@@ -15,9 +15,9 @@ pub fn gen_categories(categories: &[Category]) -> Result<Generated, Error> {
             pin: false,
             created_at: Default::default(),
             summary: None,
-            link_name: "".to_string(),
+            url_name: "".to_string(),
             category: c.name.clone(),
-            category_link_name: c.config.alias_name.clone().unwrap_or_else(|| c.name.clone()),
+            category_alias: c.alias(),
         };
         items.push(preview);
     }
@@ -44,15 +44,16 @@ fn build_preview(f: &TextFile, c: &Category) -> Result<Preview, Error> {
     let file_name = file.file_name().unwrap().to_str().unwrap();
     let preview = Preview {
         title: page.title,
+        url_name: ADOC_REG.replace(file_name, "").to_string(),
         pin: config.pin.is_some() && config.pin.as_ref().unwrap().as_str() == file_name,
         created_at: page.created_at,
         summary: page.summary,
-        link_name: REG.replace(file_name, "").to_string(),
         category: c.name.clone(),
-        category_link_name: config.alias_name.clone().unwrap_or_else(|| c.name.clone()),
+        category_alias: c.alias(),
     };
     Ok(preview)
 }
 
-static REG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.(adoc)$").unwrap());
+static ADOC_REG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.(adoc)$").unwrap());
+// static HTML_REG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.(html)$").unwrap());
 

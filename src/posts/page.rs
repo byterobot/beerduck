@@ -40,9 +40,9 @@ fn parse(adoc: &Path, full: bool) -> Result<Page, Error> {
     // 提取dom
     let mut page = Page::default();
     page.title = get_title(&doc).ok_or_else(|| anyhow!("missing title"))?;
-    page.author = get_author(&doc).ok_or_else(|| anyhow!("missing author"))?;
+    page.author = get_author(&doc).unwrap_or_else(|| CONFIG.site.author.clone());
     page.summary = None;
-    page.created_at = get_date(&doc).ok_or_else(|| anyhow!("missing created date"))?;
+    page.created_at = get_date(&doc).unwrap_or_else(|| NaiveDate::default());
     page.updated_at = None;
 
     if full {

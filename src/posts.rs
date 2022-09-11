@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use std::path::PathBuf;
 
 use anyhow::Error;
@@ -9,7 +10,8 @@ use serde_derive::Deserialize;
 use crate::config::CONFIG;
 use crate::convert::Template;
 use crate::posts::scan::scan_files;
-use crate::posts::tpl::article;
+use crate::posts::tpl::about::AboutTpl;
+use crate::posts::tpl::{about, article};
 use crate::posts::tpl::article::ArticleTpl;
 use crate::posts::tpl::preview::{CategoriesTpl, CategoryTpl};
 
@@ -19,7 +21,39 @@ mod render;
 mod page;
 mod tpl;
 
+pub static POSTS: Lazy<Posts> = Lazy::new(|| load_files().unwrap());
+
 pub fn generate_site() -> Result<(), Error> {
+    let posts = POSTS.deref();
+    let publish = &CONFIG.workspace.publish;
+
+    for c in &posts.categories {
+        let tpl = CategoryTpl::from(&c.index);
+        let target = publish.join(c.href_relative());
+        Template::Category.render_write(&tpl, &target)?;
+        for a in &c.files {
+            let target = publish.join(a.href_relative());
+            let tpl = article::build_tpl(&a.path, c)?;
+            Template::Article.render_write(&tpl, &target)?;
+        }
+    }
+
+    let tpl = CategoriesTpl::from(&posts.categories_index);
+    let target = publish.join(posts.categories_href_relative());
+    Template::Categories.render_write(&tpl, &target)?;
+
+    let tpl = CategoriesTpl::from(&posts.index);
+    let target = publish.join(posts.index_href_relative());
+    Template::Index.render_write(&tpl, &target)?;
+
+    let tpl = about::build_tpl(&posts.about.path)?;
+    let target = publish.join(posts.about_href_relative());
+    Template::About.render_write(&tpl, &target)?;
+
+    Ok(())
+}
+
+fn load_files() -> Result<Posts, Error> {
     // scan locations
     let mut posts = scan_files(&CONFIG.workspace)?;
 
@@ -28,31 +62,13 @@ pub fn generate_site() -> Result<(), Error> {
     for c in posts.categories.iter_mut() {
         c.index = gen::gen_category(c)?;
     }
-    // todo build index
 
-    // render
-    let publish = &CONFIG.workspace.publish;
-    let tpl = CategoriesTpl::from(&posts.categories_index);
-    let target = publish.join("categories.html");
-    Template::Categories.render_write(&tpl, &target)?;
-    for c in &posts.categories {
-        let tpl = CategoryTpl::from(&c.index);
-        let target = publish.join(c.href_relative());
-        Template::Category.render_write(&tpl, &target)?;
-        for a in &c.files {
-            let url_name = REG.replace(&a.name, ".html");
-            let path = CONFIG.site.slug.as_ref()
-                .map(|v| format!("{}/{}", v, url_name))
-                .unwrap_or_else(|| url_name.to_string());
+    // build index
+    posts.index = gen::gen_index(posts.categories.as_slice())?;
 
-            let target = publish.join(path);
-            let tpl = article::build_tpl(&a.path, c)?;
-            Template::Article.render_write(&tpl, &target)?;
-        }
-    }
-
-    Ok(())
+    Ok(posts)
 }
+
 
 pub struct Posts {
     index: Generated,
@@ -61,6 +77,28 @@ pub struct Posts {
     about: TextFile,
 }
 
+impl Posts {
+    pub fn index_href(&self) -> String {
+        "/index.html".into()
+    }
+    pub fn index_href_relative(&self) -> String {
+        "index.html".into()
+    }
+    pub fn categories_href(&self) -> String {
+        "/categories.html".into()
+    }
+    pub fn categories_href_relative(&self) -> String {
+        "categories.html".into()
+    }
+    pub fn about_href(&self) -> String {
+        "/about.html".into()
+    }
+    pub fn about_href_relative(&self) -> String {
+        "about.html".into()
+    }
+}
+
+
 pub struct TextFile {
     pub name: String,
     pub path: PathBuf,
@@ -68,9 +106,9 @@ pub struct TextFile {
 
 impl TextFile {
     pub fn href(&self) -> String {
-        format!("/{}", self.href_href())
+        format!("/{}", self.href_relative())
     }
-    pub fn href_href(&self) -> String {
+    pub fn href_relative(&self) -> String {
         let url_name = REG.replace(&self.name, ".html");
         let href = CONFIG.site.slug.as_ref()
             .map(|v| format!("{}/{}", v, url_name))

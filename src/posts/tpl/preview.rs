@@ -1,32 +1,34 @@
+use std::ops::Deref;
+
 use chrono::Datelike;
 use serde_derive::Serialize;
 
 use crate::config::CONFIG;
-use crate::config::site::Site;
 use crate::posts::{Category, Generated, Preview};
+use crate::posts::tpl::{Global, GLOBAL};
 
 #[derive(Serialize)]
 pub struct IndexTpl<'a> {
-    site: &'a Site,
+    site: &'a Global,
     items: Vec<ArticleItem>,
 }
 
 impl<'a> IndexTpl<'a> {
     pub fn from(g: Generated) -> Self {
-        Self { site: &CONFIG.site, items: build_items(g.items.as_slice()), }
+        Self { site: GLOBAL.deref(), items: build_items(g.items.as_slice()), }
     }
 }
 
 #[derive(Serialize)]
 pub struct CategoryTpl<'a> {
-    site: &'a Site,
+    site: &'a Global,
     title: String,
     items: Vec<ArticleItem>,
 }
 
 impl<'a> CategoryTpl<'a> {
     pub fn from(g: &Generated) -> Self {
-        Self { site: &CONFIG.site, title: g.title.clone(), items: build_items(g.items.as_slice()), }
+        Self { site: GLOBAL.deref(), title: g.title.clone(), items: build_items(g.items.as_slice()), }
     }
 }
 
@@ -59,7 +61,7 @@ pub struct ArticleItem {
 
 #[derive(Serialize)]
 pub struct CategoriesTpl<'a> {
-    site: &'a Site,
+    site: &'a Global,
     items: Vec<CategoryItem>,
 
 }
@@ -73,7 +75,7 @@ impl<'a> CategoriesTpl<'a> {
             }
         ).collect();
 
-        Self { site: &CONFIG.site, items }
+        Self { site: GLOBAL.deref(), items }
     }
 }
 

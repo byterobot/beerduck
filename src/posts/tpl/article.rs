@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use std::path::Path;
 
 use anyhow::{anyhow, Error};
@@ -5,15 +6,15 @@ use chrono::{Datelike, NaiveDate};
 use serde_derive::{Deserialize, Serialize};
 use tl::ParserOptions;
 
-use crate::config::CONFIG;
 use crate::config::site::Site;
 use crate::convert;
 use crate::posts::{Category, TextFile};
 use crate::posts::page::Page;
+use crate::posts::tpl::{GLOBAL, Global};
 
 #[derive(Serialize)]
 pub struct ArticleTpl<'a> {
-    pub site: &'a Site,
+    pub site: &'a Global,
     pub category_name: String,
     pub category_link: String,
     pub title: String,
@@ -39,7 +40,7 @@ pub fn build_tpl<'a>(adoc_file: &'a Path, category: &'a Category) -> Result<Arti
     );
 
     let tpl = ArticleTpl {
-        site: &CONFIG.site,
+        site: GLOBAL.deref(),
         category_name: category.name.clone(),
         category_link: category.href(),
         title: page.title,

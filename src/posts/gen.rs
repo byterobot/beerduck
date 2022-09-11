@@ -10,15 +10,9 @@ use crate::posts::page::Page;
 pub fn gen_categories(categories: &[Category]) -> Result<Generated, Error> {
     let mut items = vec![];
     for c in categories {
-        let preview = Preview {
-            title: "".to_string(),
-            href: "".to_string(),
-            pin: false,
-            created_at: Default::default(),
-            summary: None,
-            category: c.name.clone(),
-            category_href: c.href(),
-        };
+        let mut preview = Preview::default();
+        preview.category = c.name.clone();
+        preview.category_href = c.href();
         items.push(preview);
     }
 

@@ -33,11 +33,11 @@ pub fn generate_site() -> Result<(), Error> {
     // render
     let publish = &CONFIG.workspace.publish;
     let tpl = CategoriesTpl::from(&posts.categories_index);
-    let target = publish.join(format!("/categories.html"));
+    let target = publish.join("categories.html");
     Template::Categories.render_write(&tpl, &target)?;
     for c in &posts.categories {
         let tpl = CategoryTpl::from(&c.index);
-        let target = publish.join(c.href());
+        let target = publish.join(c.href_relative());
         Template::Category.render_write(&tpl, &target)?;
         for a in &c.files {
             let url_name = REG.replace(&a.name, ".html");
@@ -68,10 +68,13 @@ pub struct TextFile {
 
 impl TextFile {
     pub fn href(&self) -> String {
+        format!("/{}", self.href_href())
+    }
+    pub fn href_href(&self) -> String {
         let url_name = REG.replace(&self.name, ".html");
         let href = CONFIG.site.slug.as_ref()
-            .map(|v| format!("/{}/{}", v, url_name))
-            .unwrap_or_else(|| format!("/{}", url_name));
+            .map(|v| format!("{}/{}", v, url_name))
+            .unwrap_or_else(|| format!("{}", url_name));
         href
     }
 }
@@ -85,8 +88,12 @@ pub struct Category {
 
 impl Category {
     fn href(&self) -> String {
+        format!("/{}", self.href_relative())
+    }
+
+    fn href_relative(&self) -> String {
         let l = self.config.alias_name.as_ref().unwrap_or_else(|| &self.name);
-        format!("/categories/{}.html", l)
+        format!("categories/{}.html", l)
     }
 
     pub fn is_valid(&self) -> bool {
@@ -113,6 +120,7 @@ pub struct Generated {
     pub items: Vec<Preview>,
 }
 
+#[derive(Default)]
 pub struct Preview {
     pub title: String,
     pub href: String,

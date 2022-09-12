@@ -16,7 +16,7 @@ use crate::posts::tpl::{GLOBAL, Global};
 pub struct ArticleTpl<'a> {
     pub site: &'a Global,
     pub category_name: String,
-    pub category_link: String,
+    pub category_href: String,
     pub title: String,
     pub author: String,
     pub lang: String,
@@ -42,7 +42,7 @@ pub fn build_tpl<'a>(adoc_file: &'a Path, category: &'a Category) -> Result<Arti
     let tpl = ArticleTpl {
         site: GLOBAL.deref(),
         category_name: category.name.clone(),
-        category_link: category.href(),
+        category_href: category.href(),
         title: page.title,
         author: page.author,
         lang: page.lang,

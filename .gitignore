@@ -1,4 +1,6 @@
 /target
+/example/temp
+/example/publish
 .DS_Store
 .build
 .idea

@@ -1,11 +1,14 @@
+use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use std::process::Command;
 
 use anyhow::{anyhow, Error};
+use minify_html_onepass::Cfg;
 use once_cell::sync::Lazy;
 use serde::Serialize;
-use tera::{Context, Tera};
+use serde_json::Value;
+use tera::{Context, Function, Tera};
 
 use crate::config::CONFIG;
 use crate::asciidoc::AsciiDoc;
@@ -15,8 +18,25 @@ static TERA: Lazy<Tera> = Lazy::new(|| {
     let dir = dir.to_str().expect("Invalid directory for templates");
     let mut tera = Tera::new(dir).expect("new tera error");
     tera.autoescape_on(Vec::new());
+    tera.register_tester("none", is_none);
+    tera.register_function("unwrap", unwrap);
     tera
 });
+
+fn is_none(value: Option<&Value>, _b: &[Value]) -> tera::Result<bool> {
+    match value {
+        Some(Value::Null) | None => Ok(true),
+        _ => Ok(false),
+    }
+}
+
+pub fn unwrap(args: &HashMap<String, Value>) -> tera::Result<Value> {
+    match args.get("value") {
+        Some(v) => Ok(v.clone()),
+        _ => Err(tera::Error::msg("Function `unwrap` didn't receive a `value` argument"))
+    }
+}
+
 
 pub enum Template {
     Article, Category, Categories, Index, About,
@@ -32,11 +52,18 @@ impl Template {
             Template::About => "about.html"
         };
 
-        let html = TERA.render(template_name, &Context::from_serialize(value)?)?;
+        let mut html = TERA.render(template_name, &Context::from_serialize(value)?)?;
         if let Some(parent) = target.parent() {
             fs::create_dir_all(parent)?;
         }
-        fs::write(target, html)?;
+
+        if cfg!(debug_assertions) {
+            fs::write(target, html)?;
+        } else {
+            let html = minify_html_onepass::in_place_str(&mut html, &Cfg::new())
+                .map_err(|e| anyhow!("{:?}", e))?;
+            fs::write(target, html)?;
+        }
 
         Ok(())
     }
@@ -55,8 +82,7 @@ pub fn convert_adoc(adoc: &Path) -> Result<String, Error> {
 
     let status = Command::new("asciidoctor")
         .args(["-r", "asciidoctor-html5s", "-b", "html5s"])
-        // .arg("-a")
-        // .arg("nofooter")
+        .args(["-a", "linkcss"])
         .arg(input)
         .arg("-o")
         .arg(output.as_path())

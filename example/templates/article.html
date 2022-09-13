@@ -11,7 +11,38 @@
     </head>
 <body>
 
-<aside id="left-nav">有没有</aside>
+<header>
+    <span id="title">{{site.title}}</span>
+    <span id="subtitle">{{site.subtitle}}</span>
+    <div id="header-nav">
+        <span><a href="{{site.categories_href}}">分类</a></span>
+        <span><a href="{{site.about_href}}">关于</a></span>
+    </div>
+</header>
+
+<main id="main">
+    <article>
+        <div id="article-header">
+            <h1>{{title}}</h1>
+            <div id="article-meta">
+                {% set c = created_at %}
+                <time id="created-date" datetime="{{c.0}}-{{c.1}}-{{c.2}}">{{c.0}}-{{c.1}}-{{c.2}}</time>
+                <a href="{{category_href}}">{{category_name}}</a>
+            </div>
+
+        </div>
+
+        {{content_html}}
+    </article>
+
+    {% if updated_at is not none -%}
+    {%- set u = unwrap(value = updated_at) -%}
+    <time id="updated-date" datetime="{{u.0}}-{{u.1}}-{{u.2}}">更新于：{{u.0}}-{{u.1}}-{{u.2}}</time>
+    {%- endif -%}
+
+    <!-- comments -->
+</main>
+{% include "foot.html" %}
 
 <div id="outline">
     {% if nav_html is not none -%}
@@ -19,33 +50,7 @@
     {{n}}
     {%- endif -%}
 </div>
-
-<header>
-    TITLE
-</header>
-<main id="main">
-
-    <article>
-        <div>
-            <h1>{{title}}</h1>
-            {% set c = created_at %}
-            <time datetime="{{c.0}}-{{c.1}}-{{c.2}}">{{c.0}}-{{c.1}}-{{c.2}}</time>
-
-            {% if updated_at is not none -%}
-            {%- set u = unwrap(value = updated_at) -%}
-            <time datetime="{{u.0}}-{{u.1}}-{{u.2}}">更新于：{{u.0}}-{{u.1}}-{{u.2}}</time>
-            {%- endif -%}
-
-            <a href="{{category_href}}">{{category_name}}</a>
-        </div>
-
-        {{content_html}}
-    </article>
-
-    <!-- comments -->
-</main>
-{% include "foot.html" %}
-
+<aside id="left-nav"></aside>
 <div id="left-top"></div>
 <div id="left-bottom"></div>
 <div id="right-top"></div>

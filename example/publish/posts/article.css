@@ -97,8 +97,25 @@ p, .ulist, .olist { /* 第一个 ul/ol */
 figure, .image-block, .listing-block, li, li>p {
     margin-top: 8px;
 }
-figure > img {
-    max-width: 90%;
+figure > img, #content img {
+    max-width: 80%;
+}
+figure {
+    /*border: .6px solid grey;*/
+}
+figcaption {
+    font-style: italic;
+}
+
+pre, code {
+    font-family: "JetBrains Mono", "Ubuntu Mono", monospace;
+    font-size: 14px;
+}
+pre {
+    line-height: calc(14px + 4px);
+    padding: 8px 1rem;
+    /*border: .6px solid grey;*/
+    background: #e7e7e9;
 }
 
 

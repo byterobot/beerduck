@@ -1,4 +1,16 @@
-* { margin: 0; }
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, menu, nav, output, section, summary, time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    /*font: inherit;*/
+}
+h1 { font-size: 2rem; font-weight: bold; }
+h2 { font-size: 1.5rem; font-weight: bold; }
+h3 { font-size: 1.17rem; font-weight: bold; }
+h4 { font-size: 1rem; font-weight: bold; }
+h5 { font-size: 0.83rem; font-weight: bold; }
+h6 { font-size: 0.67rem; font-weight: bold; }
 body {
     display: grid;
     grid-template-areas: 'left-top header right-top'
@@ -44,31 +56,46 @@ article {
     /*background: #bf6900;*/
 
 }
+
+/*------------ ARTICLE HEADER ------------*/
 #article-header {
     margin-top: 20px;
 }
 #article-header h1 {
     text-align: center;
 }
-#article-meta {
+#article-header > div {
     display: flex;
     flex-direction: row;
     justify-content: center;
 }
-#article-meta > time {
-    margin-right: 12px;
-    color: dimgrey;
-}
-#article-meta > * {
-    font-size: 0.88rem;
-}
-#article-meta a {
+.article-meta {
     text-decoration: none;
     color: dimgrey;
+    font-size: 0.88rem;
+}
+#created-date {
+    margin-right: 12px;
 }
 
+/*--------------CONTENT-------------*/
 #content {
+    font-size: 1.1rem;
+    line-height: calc(1.1rem + 10px);
+    /*letter-spacing: 1px;*/
+}
+ul, ol {
+    padding-left: 1.5rem;
+}
+
+section {
+    margin-top: 28px;
+}
+p, figure, .image-block, .ulist, .olist  { /* 第一个 ul/ol */
     margin-top: 20px;
+}
+li, li>p {
+    margin-top: 8px;
 }
 
 

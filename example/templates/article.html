@@ -24,10 +24,10 @@
     <article>
         <div id="article-header">
             <h1>{{title}}</h1>
-            <div id="article-meta">
+            <div>
                 {% set c = created_at %}
-                <time id="created-date" datetime="{{c.0}}-{{c.1}}-{{c.2}}">{{c.0}}-{{c.1}}-{{c.2}}</time>
-                <a href="{{category_href}}">{{category_name}}</a>
+                <time id="created-date" class="article-meta" datetime="{{c.0}}-{{c.1}}-{{c.2}}">{{c.0}}-{{c.1}}-{{c.2}}</time>
+                <a class="article-meta" href="{{category_href}}">{{category_name}}</a>
             </div>
 
         </div>

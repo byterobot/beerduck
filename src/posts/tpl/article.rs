@@ -29,10 +29,8 @@ pub struct ArticleTpl<'a> {
     pub content_html: String,
 }
 
-pub fn build_tpl<'a>(adoc_file: &'a Path, category: &'a Category) -> Result<ArticleTpl<'a>, Error> {
-    let page = Page::from(adoc_file)?;
+pub fn build_tpl(page: Page, category: &Category) -> Result<ArticleTpl, Error> {
     let c = page.created_at;
-
     let category_link = category.href();
     let created_at = (c.year(), format!("{:02}", c.month()), format!("{:02}", c.day()));
     let updated_at = page.updated_at.as_ref().map(|u|

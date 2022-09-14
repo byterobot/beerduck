@@ -1,3 +1,5 @@
+use std::collections::LinkedList;
+use std::fs;
 use std::ops::Deref;
 use std::path::PathBuf;
 
@@ -9,6 +11,7 @@ use serde_derive::Deserialize;
 
 use crate::config::CONFIG;
 use crate::convert::Template;
+use crate::posts::page::Page;
 use crate::posts::scan::scan_files;
 use crate::posts::tpl::about::AboutTpl;
 use crate::posts::tpl::{about, article};
@@ -32,8 +35,10 @@ pub fn generate_site() -> Result<(), Error> {
         let target = publish.join(c.href_relative());
         Template::Category.render_write(&tpl, &target)?;
         for a in &c.files {
+            let page = Page::from(&a.path)?;
+            copy_files(&page.images)?;
+            let tpl = article::build_tpl(page, c)?;
             let target = publish.join(a.href_relative());
-            let tpl = article::build_tpl(&a.path, c)?;
             Template::Article.render_write(&tpl, &target)?;
         }
     }
@@ -67,6 +72,23 @@ fn load_files() -> Result<Posts, Error> {
     posts.index = gen::gen_index(posts.categories.as_slice())?;
 
     Ok(posts)
+}
+
+fn copy_files(files: &LinkedList<(String, String)>) -> Result<(), Error> {
+    let static_ = &CONFIG.workspace.static_;
+    let publish = &CONFIG.workspace.publish;
+    for (src, target) in files {
+        let s = static_.join(src.replacen("/", "", 1));
+        let t = publish.join(target.replacen("/", "", 1));
+        // println!("{:?}", s);
+        // println!("{:?}", t.parent().unwrap());
+        fs::create_dir_all(&t.parent().unwrap())?;
+        fs::copy(&s, &t).map_err(|e| {
+            println!("error: {}, path: {}", e, s.to_str().unwrap())
+        });
+    }
+
+    Ok(())
 }
 
 

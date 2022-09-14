@@ -1,9 +1,12 @@
-use std::path::Path;
+use std::collections::LinkedList;
+use std::path::{Path, PathBuf};
 
 use anyhow::{anyhow, Error};
 use chrono::NaiveDate;
+use log::error;
 use serde_derive::Serialize;
-use tl::{ParserOptions, VDom};
+use tl::{NodeHandle, ParserOptions, VDom};
+use tl::queryselector::iterable::QueryIterable;
 
 use crate::config::CONFIG;
 use crate::convert;
@@ -20,6 +23,7 @@ pub struct Page {
     pub updated_at: Option<NaiveDate>,
     pub nav_html: Option<String>, // id "toc"
     pub content_html: String, // id "content"
+    pub images: LinkedList<(String, String)>,
 }
 
 impl Page {
@@ -35,7 +39,7 @@ impl Page {
 fn parse(adoc: &Path, full: bool) -> Result<Page, Error> {
     // 转换成 html
     let html = convert::convert_adoc(adoc)?;
-    let doc = tl::parse(&html, ParserOptions::new())?;
+    let mut doc = tl::parse(&html, ParserOptions::new())?;
 
     // 提取dom
     let mut page = Page::default();
@@ -46,6 +50,7 @@ fn parse(adoc: &Path, full: bool) -> Result<Page, Error> {
     page.updated_at = None;
 
     if full {
+        page.images = replace_img(&mut doc).unwrap_or(Default::default());
         page.lang = get_lang(&doc).unwrap_or_else(|| CONFIG.site.lang.clone());
         page.keywords = get_keywords(&doc);
         page.description = get_description(&doc);
@@ -56,6 +61,29 @@ fn parse(adoc: &Path, full: bool) -> Result<Page, Error> {
     Ok(page)
 }
 
+fn replace_img(dom: &mut VDom) -> Option<LinkedList<(String, String)>> {
+    let mut list = LinkedList::new();
+    for n in dom.query_selector("img[src]")?.collect::<Vec<NodeHandle>>() {
+        if let Some(v) = n.get_mut(dom.parser_mut()) {
+            if let Some(v) = v.as_tag_mut() {
+                if let Some(Some(v)) = v.attributes_mut().get_mut("src") {
+                    match String::from_utf8(v.as_bytes().to_vec()) {
+                        Ok(src) => {
+                            let target = format!("/static{}", src);
+                            v.set(&*target);
+                            list.push_back((src, target));
+                        }
+                        Err(e) => {
+                            error!("parse img src error: {}", e);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Some(list)
+}
 
 // Extract dom info
 

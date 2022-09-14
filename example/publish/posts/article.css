@@ -91,10 +91,10 @@ ul, ol {
 section {
     margin-top: 28px;
 }
-p, figure, .image-block, .ulist, .olist  { /* 第一个 ul/ol */
+p, .ulist, .olist { /* 第一个 ul/ol */
     margin-top: 20px;
 }
-li, li>p {
+figure, .image-block, .listing-block, li, li>p {
     margin-top: 8px;
 }
 

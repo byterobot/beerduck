@@ -80,8 +80,6 @@ fn copy_files(files: &LinkedList<(String, String)>) -> Result<(), Error> {
     for (src, target) in files {
         let s = static_.join(src.replacen("/", "", 1));
         let t = publish.join(target.replacen("/", "", 1));
-        // println!("{:?}", s);
-        // println!("{:?}", t.parent().unwrap());
         fs::create_dir_all(&t.parent().unwrap())?;
         fs::copy(&s, &t).map_err(|e| {
             println!("error: {}, path: {}", e, s.to_str().unwrap())

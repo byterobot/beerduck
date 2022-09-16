@@ -7,8 +7,11 @@
         <meta name="description" content="{{description}}">
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <title>{{title}} - {{site.title}}</title>
+        <link href="https://fonts.cdnfonts.com/css/minion-pro" rel="stylesheet">
+        <link href="https://fonts.cdnfonts.com/css/jetbrains-mono" rel="stylesheet">
         <link rel="stylesheet" href="article.css">
     </head>
+
 <body>
 
 <header>
@@ -26,8 +29,8 @@
             <h1>{{title}}</h1>
             <div>
                 {% set c = created_at %}
-                <time id="created-date" class="article-meta" datetime="{{c.0}}-{{c.1}}-{{c.2}}">{{c.0}}-{{c.1}}-{{c.2}}</time>
-                <a class="article-meta" href="{{category_href}}">{{category_name}}</a>
+                <time id="created-date" class="article-meta" datetime="{{c.0}}-{{c.1}}-{{c.2}}">发表于：{{c.0}}-{{c.1}}-{{c.2}}</time>
+                <a class="article-meta" href="{{category_href}}">分类：{{category_name}}</a>
             </div>
 
         </div>
@@ -37,12 +40,18 @@
 
     {% if updated_at is not none -%}
     {%- set u = unwrap(value = updated_at) -%}
-    <time id="updated-date" datetime="{{u.0}}-{{u.1}}-{{u.2}}">更新于：{{u.0}}-{{u.1}}-{{u.2}}</time>
+    <time id="updated-date" datetime="{{u.0}}-{{u.1}}-{{u.2}}">最后编辑：{{u.0}}-{{u.1}}-{{u.2}}</time>
     {%- endif -%}
 
     <!-- comments -->
 </main>
-{% include "foot.html" %}
+
+<footer id="footer">
+    <span id="copyright">{{site.copyright}}</span>
+    <span id="footnote">{{site.footnote}}</span>
+</footer>
+
+<!--{% include "foot.html" %}-->
 
 <div id="outline">
     {% if nav_html is not none -%}

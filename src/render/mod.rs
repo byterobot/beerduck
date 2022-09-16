@@ -8,15 +8,15 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 use crate::config::CONFIG;
 use crate::pages::Pages;
-use crate::render::render_items::render_items;
+use crate::render::render_items::{render_categories, render_category, render_index};
 use crate::render::render_pages::render_pages;
 
 pub fn render() -> Result<(), Error> {
     let pages = Pages::create()?;
     render_pages(&pages)?;
-    render_items(&pages)?;
-
-
+    render_category(&pages)?;
+    render_categories(&pages)?;
+    render_index(&pages)?;
 
     Ok(())
 }
@@ -24,6 +24,22 @@ pub fn render() -> Result<(), Error> {
 pub fn render_one(k: &str) -> Result<(), Error> {
     //
     Ok(())
+}
+
+pub fn home_target() -> PathBuf {
+    CONFIG.workspace.publish.join("index.html")
+}
+
+pub fn home_url_path() -> String {
+    "/".into()
+}
+
+pub fn categories_target() -> PathBuf {
+    CONFIG.workspace.publish.join(remove_absolute(&categories_url_path()).as_ref())
+}
+
+pub fn categories_url_path() -> String {
+    "/categories.html".into()
 }
 
 pub fn category_target(url_name: &str) -> PathBuf {
@@ -62,3 +78,12 @@ pub fn resolve_image_path(path: &str) -> String {
 
 static REG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.(adoc)$").unwrap());
 static REG_ABSOLUTE: Lazy<Regex> = Lazy::new(|| Regex::new("^/").unwrap());
+
+#[cfg(test)]
+mod test {
+    use crate::render::render;
+    #[test]
+    fn test() {
+        render().unwrap();
+    }
+}

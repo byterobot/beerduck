@@ -27,7 +27,7 @@ impl Pages {
 
         let categories = load_categories(&CONFIG.workspace.posts)?;
         let mut names = HashMap::new();
-        categories.iter().map(|(k, v)| {
+        categories.iter().for_each(|(k, v)| {
             v.files.iter().for_each(|v| { names.insert(v.clone(), k.clone()); });
         });
 
@@ -94,7 +94,15 @@ fn load_categories(path: &Path) -> Result<HashMap<String, Category>, Error> {
 #[cfg(test)]
 mod test {
     use crate::config::CONFIG;
-    use crate::pages::{load_adoc_files, load_categories};
+    use crate::pages::{load_adoc_files, load_categories, Pages};
+
+    #[test]
+    fn test_() {
+        let pages = Pages::create().unwrap();
+        for (k, v) in pages.categories_name {
+            println!("{} -> {}", k, v);
+        }
+    }
 
     #[test]
     fn test() {

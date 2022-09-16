@@ -13,9 +13,9 @@ pub struct Category {
     pub alias: Option<String>, // <alias_name>.html
 }
 
-impl Category {
-    pub fn url_path(&self) -> String {
-        let n = self.alias.as_ref().unwrap_or_else(|| &self.name);
-        format!("/categories/{}.html", n)
-    }
-}
+// impl Category {
+//     pub fn url_path(&self) -> String {
+//         let n = self.alias.as_ref().unwrap_or_else(|| &self.name);
+//         format!("/categories/{}.html", n)
+//     }
+// }

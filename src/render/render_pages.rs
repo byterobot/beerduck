@@ -16,7 +16,7 @@ pub fn render_pages(pages: &Pages) -> Result<(), Error> {
             _ => ArticleTpl::single(page),
         };
 
-        copy_images(&page.images)?;
+        // copy_images(&page.images)?;
 
         let is_single = !pages.categories_name.contains_key(name);
         let path = page_target(name, is_single);

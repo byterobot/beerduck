@@ -8,7 +8,7 @@ use serde_derive::{Deserialize, Serialize};
 use tl::ParserOptions;
 
 use crate::config::site::Site;
-use crate::convert;
+use crate::{convert, render};
 use crate::pages::category::Category;
 use crate::pages::page::Page;
 use crate::tpl::{GlobalTpl, GLOBAL};
@@ -52,11 +52,12 @@ impl<'a> ArticleTpl<'a> {
         }
     }
 
-    pub fn from(page: &'a Page, category: &'a Category) -> ArticleTpl<'a> {
+    pub fn from(page: &'a Page, c: &'a Category) -> ArticleTpl<'a> {
         ArticleTpl {
             site: GLOBAL.deref(),
-            category_name: &category.name,
-            category_href: category.url_path(),
+            category_name: &c.name,
+            category_href: render::category_url_path(c.alias.as_ref()
+                .unwrap_or(&c.name)),
             title: &page.title,
             author: &page.author,
             lang: &page.lang,

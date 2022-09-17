@@ -33,6 +33,56 @@ impl Pages {
 
         Ok(Self { pages, categories, categories_name: names })
     }
+
+    pub fn rebuild_page(&mut self, name: &str) -> Result<(), Error> {
+        let c = self.categories_name.get(name).map(|v| v.as_str()).unwrap_or_default();
+        let path = CONFIG.workspace.posts.join(c).join(name);
+        self.pages.insert(name.into(), Page::from(&path)?);
+        Ok(())
+    }
+
+    pub fn add_page(&mut self, name: &str, category: &str) -> Result<(), Error> {
+        self.rebuild_page(name)?;
+        self.categories_name.insert(name.into(), category.into());
+        if let Some(v) = self.categories.get_mut(name) {
+            v.files.push(name.into());
+        } else {
+            let path = CONFIG.workspace.posts.join(category);
+            let mut c = load_category(&path)?;
+            c.files.push(name.into());
+            self.categories.insert(name.into(), c);
+        }
+        Ok(())
+    }
+
+    pub fn remove_page(&mut self, name: &str) -> Result<(), Error> {
+        self.pages.remove(name);
+        self.categories_name.remove(name);
+        if let Some(v) = self.categories.get_mut(name) {
+            if let Some(pos) = v.files.iter().position(|v| v.as_str() == name) {
+                v.files.remove(pos);
+            }
+        }
+        Ok(())
+    }
+
+    pub fn remove_category(&mut self, category: &str) -> Result<(), Error> {
+        let name = self.categories.keys()
+            .find_map(|k| match k.as_str() == category {
+                true => Some(k.clone()),
+                _ => None,
+            });
+        if let Some(name) = name {
+            if let Some(c) = self.categories.remove(&name) {
+                for name in &c.files {
+                    self.categories_name.remove(name);
+                    self.pages.remove(name);
+                }
+            }
+        }
+        Ok(())
+    }
+
 }
 
 
@@ -74,13 +124,7 @@ fn load_categories(path: &Path) -> Result<HashMap<String, Category>, Error> {
 
         let category_name = a.parent().unwrap().file_name().unwrap().to_str().unwrap();
         if !map.contains_key(category_name) {
-            let config = a.parent().unwrap().join("category.toml");
-            let mut c = match config.exists() {
-                true => toml::from_str(&fs::read_to_string(config)?)?,
-                _ => Category::default(),
-            };
-            c.name = category_name.into();
-            map.insert(category_name.to_string(), c);
+            map.insert(category_name.to_string(), load_category(a.parent().unwrap())?);
         }
 
         if let Some(c) = map.get_mut(category_name) {
@@ -88,6 +132,18 @@ fn load_categories(path: &Path) -> Result<HashMap<String, Category>, Error> {
         }
     }
     Ok(map)
+}
+
+fn load_category(path: &Path) -> Result<Category, Error> {
+    let category_name = path.file_name().unwrap().to_str().unwrap();
+    let config = path.join("category.toml");
+    let mut c = match config.exists() {
+        true => toml::from_str(&fs::read_to_string(config)?)?,
+        _ => Category::default(),
+    };
+    c.name = category_name.into();
+
+    Ok(c)
 }
 
 

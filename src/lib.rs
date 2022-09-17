@@ -3,7 +3,6 @@
 pub(crate) mod asciidoc;
 pub(crate) mod config;
 pub(crate) mod convert;
-pub(crate) mod posts;
 pub(crate) mod pages;
 pub(crate) mod render;
 pub(crate) mod tpl;

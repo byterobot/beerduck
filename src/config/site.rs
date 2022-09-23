@@ -1,5 +1,5 @@
 use serde::{Deserialize, Deserializer};
-use serde_derive::{Deserialize, Serialize};
+use serde_derive::Serialize;
 
 #[derive(Deserialize, Serialize)]
 pub struct Site {

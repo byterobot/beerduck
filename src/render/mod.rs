@@ -1,29 +1,46 @@
-mod render_pages;
-mod render_items;
-
 use std::borrow::Cow;
 use std::path::PathBuf;
+use std::sync::Mutex;
+use std::time::Duration;
+
 use anyhow::Error;
-use once_cell::sync::Lazy;
+use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
+use once_cell::sync::{Lazy, OnceCell};
 use regex::Regex;
+
 use crate::config::CONFIG;
 use crate::pages::Pages;
 use crate::render::render_items::{render_categories, render_category, render_index};
 use crate::render::render_pages::render_pages;
 
+mod render_pages;
+mod render_items;
+mod reload;
+
+static PAGES: OnceCell<Mutex<Pages>> = OnceCell::new();
+
+pub fn init() {
+    PAGES.set(Mutex::new(Pages::create().unwrap()));
+}
+
 pub fn render() -> Result<(), Error> {
-    let pages = Pages::create()?;
+    let pages = PAGES.get().unwrap().lock().unwrap();
     render_pages(&pages)?;
     render_category(&pages)?;
     render_categories(&pages)?;
     render_index(&pages)?;
-
     Ok(())
 }
 
-pub fn render_one(k: &str) -> Result<(), Error> {
-    //
-    Ok(())
+pub fn render_reload() -> Result<RecommendedWatcher, Error> {
+    println!("listen: {:?}", &CONFIG.workspace.posts);
+    let mut watcher = RecommendedWatcher::new(|e: Result<Event, notify::Error>| {
+        println!("{:?}", e);
+        let mut pages = PAGES.get().unwrap().lock().unwrap();
+        // reload::listen_changed(&mut pages, e.unwrap()).unwrap();
+    }, notify::Config::default())?;
+    watcher.watch(&CONFIG.workspace.posts, RecursiveMode::Recursive);
+    Ok(watcher)
 }
 
 pub fn home_target() -> PathBuf {
@@ -82,6 +99,7 @@ static REG_ABSOLUTE: Lazy<Regex> = Lazy::new(|| Regex::new("^/").unwrap());
 #[cfg(test)]
 mod test {
     use crate::render::render;
+
     #[test]
     fn test() {
         render().unwrap();

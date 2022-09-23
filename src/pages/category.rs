@@ -12,10 +12,3 @@ pub struct Category {
     pub pin: Option<String>, // example.adoc
     pub alias: Option<String>, // <alias_name>.html
 }
-
-// impl Category {
-//     pub fn url_path(&self) -> String {
-//         let n = self.alias.as_ref().unwrap_or_else(|| &self.name);
-//         format!("/categories/{}.html", n)
-//     }
-// }

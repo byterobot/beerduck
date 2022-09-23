@@ -24,23 +24,22 @@ impl Pages {
             let name = p.file_name().unwrap().to_str().unwrap().to_string();
             pages.insert(name, Page::from(&p)?);
         }
+        let mut p = Self {pages, categories: Default::default(), categories_name: Default::default()};
+        p.rebuild_index()?;
 
-        let categories = load_categories(&CONFIG.workspace.posts)?;
+        Ok(p)
+    }
+
+    pub fn rebuild_index(&mut self) -> Result<(), Error> {
+        self.categories = load_categories(&CONFIG.workspace.posts)?;
         let mut names = HashMap::new();
-        categories.iter().for_each(|(k, v)| {
+        self.categories.iter().for_each(|(k, v)| {
             v.files.iter().for_each(|v| { names.insert(v.clone(), k.clone()); });
         });
-
-        Ok(Self { pages, categories, categories_name: names })
-    }
-
-    pub fn rebuild_page(&mut self, name: &str) -> Result<(), Error> {
-        let c = self.categories_name.get(name).map(|v| v.as_str()).unwrap_or_default();
-        let path = CONFIG.workspace.posts.join(c).join(name);
-        self.pages.insert(name.into(), Page::from(&path)?);
+        self.categories_name = names;
         Ok(())
     }
-
+/*
     pub fn add_page(&mut self, name: &str, category: &str) -> Result<(), Error> {
         self.rebuild_page(name)?;
         self.categories_name.insert(name.into(), category.into());
@@ -52,6 +51,13 @@ impl Pages {
             c.files.push(name.into());
             self.categories.insert(name.into(), c);
         }
+        Ok(())
+    }
+
+    pub fn rebuild_page(&mut self, name: &str) -> Result<(), Error> {
+        let c = self.categories_name.get(name).map(|v| v.as_str()).unwrap_or_default();
+        let path = CONFIG.workspace.posts.join(c).join(name);
+        self.pages.insert(name.into(), Page::from(&path)?);
         Ok(())
     }
 
@@ -82,7 +88,7 @@ impl Pages {
         }
         Ok(())
     }
-
+*/
 }
 
 
@@ -134,7 +140,7 @@ fn load_categories(path: &Path) -> Result<HashMap<String, Category>, Error> {
     Ok(map)
 }
 
-fn load_category(path: &Path) -> Result<Category, Error> {
+pub fn load_category(path: &Path) -> Result<Category, Error> {
     let category_name = path.file_name().unwrap().to_str().unwrap();
     let config = path.join("category.toml");
     let mut c = match config.exists() {

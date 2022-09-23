@@ -26,6 +26,7 @@ chrono = { version = "0.4.22", features = ["serde"] }
 #deno_core = "0.148.0"
 toml = "0.5.9"
 notify = "5.0.0"
+tide = "0.16.0"
 tl = "0.7.7"
 tera = "1.17.0"
 minify-html-onepass = "0.10.0"

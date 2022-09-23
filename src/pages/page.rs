@@ -13,7 +13,7 @@ use crate::config::CONFIG;
 use crate::convert;
 use crate::render::resolve_image_path;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Page {
     // pub file: String,
     pub title: String,
@@ -38,7 +38,7 @@ impl Page {
         // 提取dom
         let page = Page {
             // file: adoc.file_name().unwrap().to_str().unwrap().to_string(),
-            title: get_title(&doc).ok_or_else(|| anyhow!("missing title"))?,
+            title: get_title(&doc).unwrap_or_else(|| "Untitled".to_string()),
             author: get_author(&doc).unwrap_or_else(|| CONFIG.site.author.clone()),
             lang: get_lang(&doc).unwrap_or_else(|| CONFIG.site.lang.clone()),
             keywords: get_keywords(&doc),

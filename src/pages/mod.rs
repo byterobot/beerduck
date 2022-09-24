@@ -10,6 +10,7 @@ use crate::pages::page::Page;
 
 pub mod page;
 pub mod category;
+pub mod asciidoc;
 
 pub struct Pages {
     pub pages: HashMap<String, Page>,
@@ -25,12 +26,12 @@ impl Pages {
             pages.insert(name, Page::from(&p)?);
         }
         let mut p = Self {pages, categories: Default::default(), categories_name: Default::default()};
-        p.reload_index()?;
+        p.reindex()?;
 
         Ok(p)
     }
 
-    pub fn reload_index(&mut self) -> Result<(), Error> {
+    pub fn reindex(&mut self) -> Result<(), Error> {
         self.categories = load_categories(&CONFIG.workspace.posts)?;
         let mut names = HashMap::new();
         self.categories.iter().for_each(|(k, v)| {
@@ -39,56 +40,6 @@ impl Pages {
         self.categories_name = names;
         Ok(())
     }
-/*
-    pub fn add_page(&mut self, name: &str, category: &str) -> Result<(), Error> {
-        self.rebuild_page(name)?;
-        self.categories_name.insert(name.into(), category.into());
-        if let Some(v) = self.categories.get_mut(name) {
-            v.files.push(name.into());
-        } else {
-            let path = CONFIG.workspace.posts.join(category);
-            let mut c = load_category(&path)?;
-            c.files.push(name.into());
-            self.categories.insert(name.into(), c);
-        }
-        Ok(())
-    }
-
-    pub fn rebuild_page(&mut self, name: &str) -> Result<(), Error> {
-        let c = self.categories_name.get(name).map(|v| v.as_str()).unwrap_or_default();
-        let path = CONFIG.workspace.posts.join(c).join(name);
-        self.pages.insert(name.into(), Page::from(&path)?);
-        Ok(())
-    }
-
-    pub fn remove_page(&mut self, name: &str) -> Result<(), Error> {
-        self.pages.remove(name);
-        self.categories_name.remove(name);
-        if let Some(v) = self.categories.get_mut(name) {
-            if let Some(pos) = v.files.iter().position(|v| v.as_str() == name) {
-                v.files.remove(pos);
-            }
-        }
-        Ok(())
-    }
-
-    pub fn remove_category(&mut self, category: &str) -> Result<(), Error> {
-        let name = self.categories.keys()
-            .find_map(|k| match k.as_str() == category {
-                true => Some(k.clone()),
-                _ => None,
-            });
-        if let Some(name) = name {
-            if let Some(c) = self.categories.remove(&name) {
-                for name in &c.files {
-                    self.categories_name.remove(name);
-                    self.pages.remove(name);
-                }
-            }
-        }
-        Ok(())
-    }
-*/
 }
 
 

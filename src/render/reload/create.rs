@@ -18,7 +18,7 @@ pub fn on_create_render(pages: &mut Pages, path: &Path) -> Result<(), Error> {
     }
 
     if kind.is_some() { // 有效更改文件名
-        pages.reload_index()?;
+        pages.reindex()?;
         render_items(pages)?;
     }
 

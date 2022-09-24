@@ -13,11 +13,11 @@ pub fn on_remove_render(pages: &mut Pages, path: &Path) -> Result<(), Error> {
         },
         Some(Adoc(name)) => {
             pages.pages.remove(&name);
-            pages.reload_index()?;
+            pages.reindex()?;
             render_items(pages)?;
         }
         Some(Toml(_)) => {
-            pages.reload_index()?;
+            pages.reindex()?;
             render_items(pages)?;
         },
         Some(Folder(name)) => {
@@ -26,7 +26,7 @@ pub fn on_remove_render(pages: &mut Pages, path: &Path) -> Result<(), Error> {
                     pages.pages.remove(&n);
                 }
             }
-            pages.reload_index()?;
+            pages.reindex()?;
             render_items(pages)?;
 
         },

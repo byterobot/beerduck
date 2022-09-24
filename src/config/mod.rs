@@ -28,4 +28,6 @@ pub struct Config {
     pub content: Content,
     #[serde(skip_deserializing)]
     pub workspace: Workspace,
+    #[serde(skip_deserializing)]
+    pub dev: bool,
 }

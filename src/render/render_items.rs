@@ -2,15 +2,16 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::path::Iter;
+
 use anyhow::Error;
 use once_cell::sync::Lazy;
 use regex::Regex;
-use crate::convert::Template;
+
 use crate::pages::category::Category;
 use crate::pages::page::Page;
-
 use crate::pages::Pages;
 use crate::render::{categories_target, category_target, category_url_path, home_target, page_url_path};
+use crate::render::template::Template;
 use crate::tpl::article::cast_date;
 use crate::tpl::GLOBAL;
 use crate::tpl::items::{Item, ItemsTpl};

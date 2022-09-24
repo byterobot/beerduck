@@ -16,6 +16,7 @@ use crate::render::render_pages::render_pages;
 mod render_pages;
 mod render_items;
 mod reload;
+pub(crate) mod template;
 
 static PAGES: OnceCell<Mutex<Pages>> = OnceCell::new();
 

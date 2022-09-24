@@ -1,3 +1,4 @@
+pub mod convert;
 
 pub struct AsciiDoc {
     source: Option<String>,

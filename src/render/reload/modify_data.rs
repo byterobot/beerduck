@@ -14,15 +14,15 @@ pub fn on_modify_data_render(pages: &mut Pages, path: &Path) -> Result<(), Error
         Some(Adoc(name)) => {
             pages.pages.insert(name.clone(), Page::from(path)?);
             render_page(pages, &name)?;
-            pages.reload_index()?;
+            pages.reindex()?;
             render_items(pages)?;
         }
         Some(Toml(_)) => {
-            pages.reload_index()?;
+            pages.reindex()?;
             render_items(pages)?;
         },
         Some(Folder(_)) => {
-            pages.reload_index()?;
+            pages.reindex()?;
             render_items(pages)?;
         },
         _ => {}

@@ -10,7 +10,7 @@ use tl::{NodeHandle, ParserOptions, VDom};
 use tl::queryselector::iterable::QueryIterable;
 
 use crate::config::CONFIG;
-use crate::convert;
+use crate::pages::asciidoc::convert;
 use crate::render::resolve_image_path;
 
 #[derive(Debug, Clone, Serialize)]

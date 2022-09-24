@@ -6,9 +6,7 @@ use log::info;
 use crate::config::CONFIG;
 use crate::render::{init, render_reload};
 
-pub(crate) mod asciidoc;
 pub(crate) mod config;
-pub(crate) mod convert;
 pub(crate) mod pages;
 pub(crate) mod render;
 pub(crate) mod tpl;

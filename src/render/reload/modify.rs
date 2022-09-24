@@ -38,7 +38,7 @@ pub fn on_modify_render(pages: &mut Pages, path: &Path) -> Result<(), Error> {
     *cache = PageCache::default();
 
     if kind.is_some() { // 有效更改文件名
-        pages.reload_index()?;
+        pages.reindex()?;
         render_items(pages)?;
     }
 

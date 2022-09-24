@@ -3,9 +3,9 @@ use std::fs;
 use anyhow::Error;
 
 use crate::config::CONFIG;
-use crate::convert::Template;
 use crate::pages::Pages;
 use crate::render::{page_target, remove_absolute, resolve_image_path};
+use crate::render::template::Template;
 use crate::tpl::article::ArticleTpl;
 
 pub fn render_pages(pages: &Pages) -> Result<(), Error> {
@@ -23,7 +23,7 @@ pub fn render_page(pages: &Pages, name: &str) -> Result<(), Error> {
             _ => ArticleTpl::single(page),
         };
 
-        // copy_images(&page.images)?;
+        copy_images(&page.images)?;
 
         let is_single = !pages.categories_name.contains_key(name);
         let path = page_target(name, is_single);
@@ -43,12 +43,15 @@ fn copy_images(images: &[String]) -> Result<(), Error> {
     let publish = &CONFIG.workspace.publish;
     for src in images {
         let src = remove_absolute(src);
-        let s = static_.join(src.as_ref());
-        let t = publish.join(resolve_image_path(src.as_ref()));
+        let s = static_.join("images").join(src.as_ref());
+        let t = publish.join(remove_absolute(&resolve_image_path(src.as_ref())).as_ref());
         fs::create_dir_all(&t.parent().unwrap())?;
-        fs::copy(&s, &t).map_err(|e| {
-            println!("error: {}, path: {}", e, s.to_str().unwrap())
-        });
+        if s.exists() {
+            fs::copy(&s, &t).map_err(|e| {
+                println!("error: {}, path: {}", e, s.to_str().unwrap())
+            });
+        }
+
     }
     Ok(())
 }

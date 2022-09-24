@@ -2,6 +2,7 @@ use std::env::current_dir;
 use std::path::PathBuf;
 
 use serde_derive::{Deserialize, Serialize};
+use toml::toml;
 
 /// 各内容目录
 #[derive(Deserialize, Serialize)]
@@ -22,7 +23,6 @@ pub struct Workspace {
 
 fn workspace() -> PathBuf {
     let current = current_dir().expect("get current directory error.");
-    println!("build current dir");
     if cfg!(debug_assertions) {
         println!("debug mode");
         return current.join("example");
@@ -30,15 +30,11 @@ fn workspace() -> PathBuf {
     current
 }
 
-// contents/posts, contents/notes
-// contents/posts/static, contents/notes/static
-// contents/posts/<category>/static, contents/notes/<category>/static
-
 impl Default for Workspace {
     fn default() -> Self {
         let workspace = current_dir().map(|workspace| {
             if cfg!(debug_assertions) {
-                return workspace.join("example");
+                return toml::from_str::<Dev>(include_str!("../../dev.toml")).unwrap().workspace_root;
             }
             workspace
         }).expect("get current directory error.");
@@ -56,9 +52,16 @@ impl Default for Workspace {
     }
 }
 
+#[derive(Deserialize)]
+struct Dev {
+    workspace_root: PathBuf,
+}
+
+
+
+
 #[cfg(test)]
 mod test {
-
     use crate::config::workspace::Workspace;
 
     #[test]

@@ -7,11 +7,11 @@ use once_cell::sync::Lazy;
 use serde_derive::{Deserialize, Serialize};
 use tl::ParserOptions;
 
+use crate::render;
 use crate::config::site::Site;
-use crate::{convert, render};
 use crate::pages::category::Category;
 use crate::pages::page::Page;
-use crate::tpl::{GlobalTpl, GLOBAL};
+use crate::tpl::{GLOBAL, GlobalTpl};
 
 #[derive(Serialize)]
 pub struct ArticleTpl<'a> {

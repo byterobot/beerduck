@@ -9,7 +9,14 @@ use crate::render::{page_target, remove_absolute, resolve_image_path};
 use crate::tpl::article::ArticleTpl;
 
 pub fn render_pages(pages: &Pages) -> Result<(), Error> {
-    for (name, page) in &pages.pages {
+    for name in pages.pages.keys() {
+        render_page(pages, name)?;
+    }
+    Ok(())
+}
+
+pub fn render_page(pages: &Pages, name: &str) -> Result<(), Error> {
+    if let Some(page) = pages.pages.get(name) {
         let tpl = match pages.categories_name.get(name) {
             Some(c) =>
                 ArticleTpl::from(page, pages.categories.get(c).unwrap()),
@@ -44,10 +51,6 @@ fn copy_images(images: &[String]) -> Result<(), Error> {
         });
     }
     Ok(())
-}
-
-pub fn render_page(pages: &Pages, name: &str) -> Result<(), Error> {
-    todo!()
 }
 
 #[cfg(test)]

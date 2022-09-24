@@ -15,8 +15,14 @@ use crate::tpl::article::cast_date;
 use crate::tpl::GLOBAL;
 use crate::tpl::items::{Item, ItemsTpl};
 
+pub fn render_items(pages: &Pages) -> Result<(), Error> {
+    render_category(&pages)?;
+    render_categories(&pages)?;
+    render_index(&pages)?;
+    Ok(())
+}
 
-pub fn render_category(pages: &Pages) -> Result<(), Error> {
+fn render_category(pages: &Pages) -> Result<(), Error> {
     for c in pages.categories.values() {
         let mut items = build_pages(c, &pages.pages)?;
         items.sort_by(|a, b| {
@@ -39,7 +45,7 @@ pub fn render_category(pages: &Pages) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn render_categories(pages: &Pages) -> Result<(), Error> {
+fn render_categories(pages: &Pages) -> Result<(), Error> {
     let mut items = vec![];
     for c in pages.categories.values() {
         let mut item = Item::default();
@@ -64,7 +70,7 @@ pub fn render_categories(pages: &Pages) -> Result<(), Error> {
     Ok(())
 }
 
-pub fn render_index(pages: &Pages) -> Result<(), Error> {
+fn render_index(pages: &Pages) -> Result<(), Error> {
     let mut all_items = vec![];
     for c in pages.categories.values() {
         all_items.extend(build_pages(c, &pages.pages)?);

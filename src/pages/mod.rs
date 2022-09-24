@@ -25,12 +25,12 @@ impl Pages {
             pages.insert(name, Page::from(&p)?);
         }
         let mut p = Self {pages, categories: Default::default(), categories_name: Default::default()};
-        p.rebuild_index()?;
+        p.reload_index()?;
 
         Ok(p)
     }
 
-    pub fn rebuild_index(&mut self) -> Result<(), Error> {
+    pub fn reload_index(&mut self) -> Result<(), Error> {
         self.categories = load_categories(&CONFIG.workspace.posts)?;
         let mut names = HashMap::new();
         self.categories.iter().for_each(|(k, v)| {

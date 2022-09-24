@@ -10,7 +10,7 @@ use regex::Regex;
 
 use crate::config::CONFIG;
 use crate::pages::Pages;
-use crate::render::render_items::{render_categories, render_category, render_index};
+use crate::render::render_items::render_items;
 use crate::render::render_pages::render_pages;
 
 mod render_pages;
@@ -26,18 +26,14 @@ pub fn init() {
 pub fn render() -> Result<(), Error> {
     let pages = PAGES.get().unwrap().lock().unwrap();
     render_pages(&pages)?;
-    render_category(&pages)?;
-    render_categories(&pages)?;
-    render_index(&pages)?;
+    render_items(&pages)?;
     Ok(())
 }
 
 pub fn render_reload() -> Result<RecommendedWatcher, Error> {
-    println!("listen: {:?}", &CONFIG.workspace.posts);
     let mut watcher = RecommendedWatcher::new(|e: Result<Event, notify::Error>| {
-        println!("{:?}", e);
         let mut pages = PAGES.get().unwrap().lock().unwrap();
-        // reload::listen_changed(&mut pages, e.unwrap()).unwrap();
+        reload::listen_changed(&mut pages, e.unwrap()).unwrap();
     }, notify::Config::default())?;
     watcher.watch(&CONFIG.workspace.posts, RecursiveMode::Recursive);
     Ok(watcher)

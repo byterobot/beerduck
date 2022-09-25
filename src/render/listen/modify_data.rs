@@ -1,18 +1,19 @@
 use std::path::Path;
 
 use anyhow::Error;
+use crate::pages::page::Page;
 
 use crate::pages::Pages;
-use crate::render::reload::PathKind::{self, *};
+use crate::render::listen::PathKind::{self, *};
 use crate::render::render_items::render_items;
+use crate::render::render_pages::render_page;
 
-pub fn on_remove_render(pages: &mut Pages, path: &Path) -> Result<(), Error> {
+pub fn on_modify_data_render(pages: &mut Pages, path: &Path) -> Result<(), Error> {
     match PathKind::parse(path) {
-        Some(Single(name)) => {
-            pages.pages.remove(&name);
-        },
+        Some(Single(name)) => render_page(pages, &name)?,
         Some(Adoc(name)) => {
-            pages.pages.remove(&name);
+            pages.pages.insert(name.clone(), Page::from(path)?);
+            render_page(pages, &name)?;
             pages.reindex()?;
             render_items(pages)?;
         }
@@ -20,15 +21,9 @@ pub fn on_remove_render(pages: &mut Pages, path: &Path) -> Result<(), Error> {
             pages.reindex()?;
             render_items(pages)?;
         },
-        Some(Folder(name)) => {
-            if let Some(c) = pages.categories.remove(&name) {
-                for n in c.files {
-                    pages.pages.remove(&n);
-                }
-            }
+        Some(Folder(_)) => {
             pages.reindex()?;
             render_items(pages)?;
-
         },
         _ => {}
     }

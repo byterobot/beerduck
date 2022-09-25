@@ -1,6 +1,6 @@
 use serde_derive::Serialize;
 
-use crate::tpl::GlobalTpl;
+use crate::template::model::GlobalTpl;
 
 #[derive(Serialize)]
 pub struct ItemsTpl<'a> {

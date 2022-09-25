@@ -11,7 +11,7 @@ use crate::render;
 use crate::config::site::Site;
 use crate::pages::category::Category;
 use crate::pages::page::Page;
-use crate::tpl::{GLOBAL, GlobalTpl};
+use crate::template::model::{GLOBAL, GlobalTpl};
 
 #[derive(Serialize)]
 pub struct ArticleTpl<'a> {

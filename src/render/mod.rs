@@ -15,8 +15,7 @@ use crate::render::render_pages::render_pages;
 
 mod render_pages;
 mod render_items;
-mod reload;
-pub(crate) mod template;
+mod listen;
 
 static PAGES: OnceCell<Mutex<Pages>> = OnceCell::new();
 
@@ -31,10 +30,10 @@ pub fn render() -> Result<(), Error> {
     Ok(())
 }
 
-pub fn render_reload() -> Result<RecommendedWatcher, Error> {
+pub fn listen_posts() -> Result<RecommendedWatcher, Error> {
     let mut watcher = RecommendedWatcher::new(|e: Result<Event, notify::Error>| {
         let mut pages = PAGES.get().unwrap().lock().unwrap();
-        reload::listen_changed(&mut pages, e.unwrap()).unwrap();
+        listen::listen_changed(&mut pages, e.unwrap()).unwrap();
     }, notify::Config::default())?;
     watcher.watch(&CONFIG.workspace.posts, RecursiveMode::Recursive);
     Ok(watcher)

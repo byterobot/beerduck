@@ -29,6 +29,7 @@ notify = "5.0.0"
 tide = "0.16.0"
 tl = "0.7.7"
 tera = "1.17.0"
+bimap = "0.6.2"
 minify-html-onepass = "0.10.0"
 
 [dev-dependencies]

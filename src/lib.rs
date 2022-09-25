@@ -4,17 +4,17 @@ use anyhow::Error;
 use log::info;
 
 use crate::config::CONFIG;
-use crate::render::{init, render_reload};
+use crate::render::{init, listen_posts};
 
 pub(crate) mod config;
 pub(crate) mod pages;
 pub(crate) mod render;
-pub(crate) mod tpl;
+pub(crate) mod template;
 
 pub async fn start_server() -> Result<(), Error> {
     publish()?;
     info!("watching modify.");
-    let w = render_reload()?;
+    let w = listen_posts()?;
     info!("start server.");
     let mut app = tide::new();
     app.at("/").serve_dir(&CONFIG.workspace.publish)?;

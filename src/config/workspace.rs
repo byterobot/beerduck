@@ -1,11 +1,10 @@
 use std::env::current_dir;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
-use serde_derive::{Deserialize, Serialize};
-use toml::toml;
+use serde_derive::Deserialize;
 
 /// 各内容目录
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 pub struct Workspace {
     // 内容目录, 默认是执行命令的当前工作目录.
     // #[serde(default = "workspace")]
@@ -15,50 +14,55 @@ pub struct Workspace {
     pub notes: PathBuf,
     pub temp: PathBuf,
     pub publish: PathBuf,
-    #[serde(rename = "static")]
-    pub static_: PathBuf,
-    pub templates: PathBuf,
-    pub themes: PathBuf,
-}
-
-fn workspace() -> PathBuf {
-    let current = current_dir().expect("get current directory error.");
-    if cfg!(debug_assertions) {
-        println!("debug mode");
-        return current.join("example");
-    }
-    current
+    pub assets: PathBuf,
+    pub theme: Theme,
 }
 
 impl Default for Workspace {
     fn default() -> Self {
-        let workspace = current_dir().map(|workspace| {
-            if cfg!(debug_assertions) {
-                return toml::from_str::<Dev>(include_str!("../../dev.toml")).unwrap().workspace_root;
-            }
-            workspace
-        }).expect("get current directory error.");
-
+        let workspace = workspace();
         Self {
             root: workspace.clone(),
             posts: workspace.join("posts"),
             notes: workspace.join("notes"),
             temp: workspace.join("temp"),
             publish: workspace.join("publish"),
-            static_: workspace.join("static"),
-            templates: workspace.join("templates"),
-            themes: workspace.join("themes"),
+            assets: workspace.join("assets"),
+            theme: Theme::new(&workspace),
         }
     }
 }
 
 #[derive(Deserialize)]
-struct Dev {
-    workspace_root: PathBuf,
+pub struct Theme {
+    pub templates: PathBuf,
+    pub js: PathBuf,
+    pub css: PathBuf,
+    pub fonts: PathBuf,
 }
 
+impl Theme {
+    fn new(workspace: &Path) -> Self {
+        Self {
+            templates: workspace.join("theme/templates"),
+            js: workspace.join("theme/js"),
+            css: workspace.join("theme/css"),
+            fonts: workspace.join("theme/fonts"),
+        }
+    }
+}
 
+fn workspace() -> PathBuf {
+    match cfg!(debug_assertions) {
+        true => toml::from_str::<Dev>(include_str!("../../dev.toml")).unwrap().root,
+        _ => current_dir().unwrap(),
+    }
+}
 
+#[derive(Deserialize)]
+struct Dev {
+    root: PathBuf,
+}
 
 #[cfg(test)]
 mod test {

@@ -2,11 +2,11 @@ use std::fs;
 
 use anyhow::Error;
 use once_cell::sync::Lazy;
-use serde_derive::{Deserialize, Serialize};
+use serde_derive::Deserialize;
 
 use crate::config::content::Content;
-use crate::config::workspace::Workspace;
 use crate::config::site::Site;
+use crate::config::workspace::Workspace;
 
 pub mod workspace;
 pub mod site;
@@ -22,7 +22,7 @@ fn deserialize_config() -> Result<Config, Error> {
     Ok(config)
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize)]
 pub struct Config {
     pub site: Site,
     pub content: Content,

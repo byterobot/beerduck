@@ -11,10 +11,10 @@ use crate::pages::category::Category;
 use crate::pages::page::Page;
 use crate::pages::Pages;
 use crate::render::{categories_target, category_target, category_url_path, home_target, page_url_path};
-use crate::render::template::Template;
-use crate::tpl::article::cast_date;
-use crate::tpl::GLOBAL;
-use crate::tpl::items::{Item, ItemsTpl};
+use crate::template::model::article::cast_date;
+use crate::template::model::GLOBAL;
+use crate::template::model::items::{Item, ItemsTpl};
+use crate::template::Template;
 
 pub fn render_items(pages: &Pages) -> Result<(), Error> {
     render_category(&pages)?;

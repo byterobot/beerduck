@@ -1,4 +1,6 @@
+pub(crate) mod listen;
 pub mod model;
+mod register;
 
 use std::collections::HashMap;
 use std::fs;
@@ -15,30 +17,18 @@ use serde_json::Value;
 use tera::{Context, Function, Tera};
 
 use crate::config::CONFIG;
+use crate::template::listen::copy_files;
+use crate::template::register::register;
 
 static TERA: Lazy<Tera> = Lazy::new(|| {
     let dir = CONFIG.workspace.theme.templates.join("*.html");
     let dir = dir.to_str().expect("Invalid directory for templates");
     let mut tera = Tera::new(dir).expect("new tera error");
     tera.autoescape_on(Vec::new());
-    tera.register_tester("none", is_none);
-    tera.register_function("unwrap", unwrap);
+    register(&mut tera);
+    copy_files().unwrap();
     tera
 });
-
-fn is_none(value: Option<&Value>, _b: &[Value]) -> tera::Result<bool> {
-    match value {
-        Some(Value::Null) | None => Ok(true),
-        _ => Ok(false),
-    }
-}
-
-pub fn unwrap(args: &HashMap<String, Value>) -> tera::Result<Value> {
-    match args.get("value") {
-        Some(v) => Ok(v.clone()),
-        _ => Err(tera::Error::msg("Function `unwrap` didn't receive a `value` argument"))
-    }
-}
 
 #[derive(Eq, PartialEq, Hash)]
 pub enum Template {

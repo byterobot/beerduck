@@ -5,6 +5,7 @@ use log::info;
 
 use crate::config::CONFIG;
 use crate::render::{init, listen_posts};
+use crate::template::listen::listen_theme;
 
 pub(crate) mod config;
 pub(crate) mod pages;
@@ -13,7 +14,10 @@ pub(crate) mod template;
 
 pub async fn start_server() -> Result<(), Error> {
     publish()?;
-    info!("watching modify.");
+
+    info!("watching theme.");
+    let c = listen_theme()?;
+    info!("watching posts.");
     let w = listen_posts()?;
     info!("start server.");
     let mut app = tide::new();

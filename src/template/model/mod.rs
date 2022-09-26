@@ -13,6 +13,7 @@ pub static GLOBAL: Lazy<GlobalTpl> = Lazy::new(|| GlobalTpl::from(&CONFIG.site) 
 #[derive(Serialize)]
 pub struct GlobalTpl {
     pub title: String,
+    pub author: String,
     pub subtitle: Option<String>,
     pub copyright: Option<String>,
     pub footnote: Option<String>,
@@ -24,6 +25,7 @@ impl GlobalTpl {
     fn from(site: &Site) -> Self {
         Self {
             title: site.title.clone(),
+            author: site.author.clone(),
             subtitle: site.subtitle.clone(),
             copyright: site.copyright.clone(),
             footnote: site.footnote.clone(),

@@ -2,6 +2,7 @@ use std::fs;
 use std::fs::ReadDir;
 use std::path::{Path, PathBuf};
 use anyhow::Error;
+use log::debug;
 use notify::{Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use crate::CONFIG;
 
@@ -9,7 +10,9 @@ pub fn listen_theme() -> Result<RecommendedWatcher, Error> {
     let mut watcher = RecommendedWatcher::new(|e: Result<Event, notify::Error>| {
         on_changed(e.unwrap()).unwrap();
     }, notify::Config::default())?;
-    watcher.watch(&CONFIG.workspace.posts, RecursiveMode::Recursive);
+    watcher.watch(&CONFIG.workspace.theme.css, RecursiveMode::Recursive);
+    watcher.watch(&CONFIG.workspace.theme.js, RecursiveMode::Recursive);
+    watcher.watch(&CONFIG.workspace.theme.fonts, RecursiveMode::Recursive);
     Ok(watcher)
 }
 
@@ -23,22 +26,6 @@ pub fn on_changed(e: Event) -> Result<(), Error> {
     }
 
     Ok(())
-}
-
-fn parse(path: &Path) -> Option<PathBuf> {
-    if let Some(Some(v)) = path.extension().map(|v| v.to_str()) {
-        let parent = path.parent().unwrap().to_str().unwrap();
-        let publish = CONFIG.workspace.publish.join("static");
-        if path.is_file() && (v == "js" || v == "css" || parent == "fonts") {
-            let p = CONFIG.workspace.publish
-                .join("static")
-                .join(parent)
-                .join(path.file_name().unwrap());
-            return Some(p);
-        }
-    }
-
-    None
 }
 
 pub fn copy_files() -> Result<(), Error> {
@@ -70,4 +57,20 @@ fn load_files(path: &Path) -> Result<Vec<PathBuf>, Error> {
         .filter(|f| f.is_file() && f.extension().is_some())
         .collect::<Vec<PathBuf>>();
     Ok(files)
+}
+
+fn parse(path: &Path) -> Option<PathBuf> {
+    if let Some(Some(v)) = path.extension().map(|v| v.to_str()) {
+        let parent = path.parent().unwrap().to_str().unwrap();
+        let publish = CONFIG.workspace.publish.join("static");
+        if path.is_file() && (v == "js" || v == "css" || parent == "fonts") {
+            let p = CONFIG.workspace.publish
+                .join("static")
+                .join(parent)
+                .join(path.file_name().unwrap());
+            return Some(p);
+        }
+    }
+
+    None
 }

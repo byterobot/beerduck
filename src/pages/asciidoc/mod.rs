@@ -1,3 +1,5 @@
+use tide::new;
+
 pub mod convert;
 
 pub struct AsciiDoc {
@@ -6,69 +8,36 @@ pub struct AsciiDoc {
 }
 
 impl AsciiDoc {
-    pub fn from(text: &str) -> Self {
-        let text = text.trim();
-        if !text.starts_with(r"^\[[-+=]\]$") {
-            return Self { source: None, target: text.to_string() }
+    pub fn parse(text: &str) -> Self {
+        if !(text.starts_with("+\n") || text.starts_with("-\n") || text.starts_with("=\n")) {
+            return Self { source: None, target: text.into(), };
         }
 
-        let mut source = String::new();
-        let mut target = String::new();
-        for (v, t) in Self::split_hybrid(text) {
-            match t {
-                TextType::Source => source.push_str(&v),
-                TextType::Target => target.push_str(&v),
-                TextType::Share => {
-                    source.push_str(&v);
-                    target.push_str(&v);
-                }
+        let (mut origin, mut target) = (String::new(), String::new());
+        let mut way = (&mut origin, Some(&mut target));
+        for line in text.split("\n") {
+            match line {
+                "-" => way = (&mut origin, None),
+                "+" => way = (&mut target, None),
+                "=" => way = (&mut origin, Some(&mut target)),
+                _ => {}
+            }
+            let line = match line {
+                "-" | "+" | "=" => "\n",
+                _ => line,
+            };
+
+            way.0.push_str(&format!("{}\n", line));
+            if let Some(r) = way.1.as_deref_mut() {
+                r.push_str(&format!("{}\n", line));
             }
         }
 
-        Self { source: Some(source), target }
+        Self { source: Some(origin.trim_start().into()), target: target.trim_start().into(), }
     }
 
     pub fn text(&self) -> &str {
         &self.target
     }
 
-    fn split_hybrid(text: &str) -> Vec<(String, TextType)> {
-        let mut vec = vec![];
-        for line in text.split("(\r\n|\r|\n)") {
-            match TextType::match_type(line) {
-                Some(v) => vec.push((String::new(), v)),
-                _ => {
-                    match vec.last_mut() {
-                        Some((t, _)) => {
-                            t.push_str(line);
-                            t.push('\n');
-                        },
-                        _ => {
-                            panic!("Translate file syntax error, \
-                            must start with `[-]`, `[+]` or `[=]`");
-                        }
-                    }
-                },
-            }
-        }
-        vec
-    }
-
-}
-
-
-#[derive(Copy, Clone, Eq, PartialEq)]
-enum TextType {
-    Source, Target, Share
-}
-
-impl TextType {
-    fn match_type(line: &str) -> Option<TextType> {
-        match line.trim() {
-            "[-]" => Some(TextType::Source),
-            "[+]" => Some(TextType::Target),
-            "[=]" => Some(TextType::Share),
-            _ => None,
-        }
-    }
 }

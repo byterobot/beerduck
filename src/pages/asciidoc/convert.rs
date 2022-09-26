@@ -11,7 +11,7 @@ use crate::pages::asciidoc::AsciiDoc;
 pub fn convert_adoc(adoc: &Path) -> Result<String, Error> {
     let temp_dir = CONFIG.workspace.temp.as_path();
     fs::create_dir_all(temp_dir)?;
-    let doc = AsciiDoc::from(&fs::read_to_string(adoc)?);
+    let doc = AsciiDoc::parse(&fs::read_to_string(adoc)?);
     let input = temp_dir.join(adoc.file_name().unwrap());
     fs::write(&input, doc.text())?;
 

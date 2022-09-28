@@ -17,14 +17,14 @@ use crate::render::resolve_image_path;
 pub struct Page {
     // pub file: String,
     pub title: String,
-    pub author: String,
-    pub lang: String,
+    pub author: Option<String>,
+    pub lang: Option<String>,
     pub keywords: Option<String>,
     pub description: Option<String>,
     pub summary: Option<String>,
     pub created_at: NaiveDate,
     pub updated_at: Option<NaiveDate>,
-    pub nav_html: Option<String>, // id "toc"
+    pub toc_html: Option<String>, // id "toc>ol"
     pub content_html: String, // id "content"
     pub images: Vec<String>,
 }
@@ -39,14 +39,14 @@ impl Page {
         let page = Page {
             // file: adoc.file_name().unwrap().to_str().unwrap().to_string(),
             title: get_title(&doc).unwrap_or_else(|| "Untitled".to_string()),
-            author: get_author(&doc).unwrap_or_else(|| CONFIG.site.author.clone()),
-            lang: get_lang(&doc).unwrap_or_else(|| CONFIG.site.lang.clone()),
+            author: get_author(&doc),
+            lang: get_lang(&doc),
             keywords: get_keywords(&doc),
             description: get_description(&doc),
             summary: None,
             created_at: get_date(&doc).unwrap_or_else(|| NaiveDate::default()),
             updated_at: None,
-            nav_html: get_nav(&doc),
+            toc_html: get_toc(&doc),
             content_html:  get_content(&doc).ok_or_else(|| anyhow!("missing content"))?,
             images,
         };
@@ -114,11 +114,14 @@ fn get_description(doc: &VDom) -> Option<String> {
     String::from_utf8(a.as_bytes().to_vec()).ok()
 }
 
-fn get_nav(doc: &VDom) -> Option<String> {
+fn get_toc(doc: &VDom) -> Option<String> {
     let v = doc.get_element_by_id("toc")?
         .get(doc.parser())?
+        .children()?
+        .all(doc.parser())
+        .get(2)?
         .outer_html(doc.parser());
-    Some(v.trim().to_string())
+    Some(v.to_string())
 }
 
 fn get_date(doc: &VDom) -> Option<NaiveDate> {
@@ -135,4 +138,17 @@ fn get_content(doc: &VDom) -> Option<String> {
         .get(doc.parser())?
         .outer_html(doc.parser());
     Some(v.trim().to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test() {
+        let path = CONFIG.workspace.temp.join("ch02.adoc");
+        let page = Page::from(&path).unwrap();
+
+        println!("{:?}", page.toc_html);
+    }
 }

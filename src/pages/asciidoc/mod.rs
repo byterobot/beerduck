@@ -23,7 +23,7 @@ impl AsciiDoc {
                 _ => {}
             }
             let line = match line {
-                "-" | "+" | "=" => "\n",
+                "-" | "+" | "=" => "",
                 _ => line,
             };
 

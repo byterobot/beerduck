@@ -17,6 +17,7 @@ pub struct GlobalTpl {
     pub subtitle: Option<String>,
     pub copyright: Option<String>,
     pub footnote: Option<String>,
+    pub toc_title: String,
     pub categories_href: String,
     pub about_href: String,
 }
@@ -29,6 +30,7 @@ impl GlobalTpl {
             subtitle: site.subtitle.clone(),
             copyright: site.copyright.clone(),
             footnote: site.footnote.clone(),
+            toc_title: site.toc_title.clone(),
             categories_href: "/categories.html".into(),
             about_href: "/about.html".into(),
         }

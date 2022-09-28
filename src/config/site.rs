@@ -12,6 +12,7 @@ pub struct Site {
     pub lang: String,
     #[serde(deserialize_with = "de_slug")]
     pub slug: Option<String>,
+    pub toc_title: String,
 }
 
 // 去掉第一个斜线/

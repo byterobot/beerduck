@@ -54,7 +54,7 @@ impl Theme {
 
 fn workspace() -> PathBuf {
     match cfg!(debug_assertions) {
-        true => toml::from_str::<Dev>(include_str!("../../dev.toml")).unwrap().root,
+        true => toml::from_str::<Dev>(include_str!("../../../../dev.toml")).unwrap().root,
         _ => current_dir().unwrap(),
     }
 }

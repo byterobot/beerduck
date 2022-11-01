@@ -1,4 +1,6 @@
-pub mod doc_map;
+pub mod pages;
+pub mod render;
+pub mod template;
 
 pub fn add(left: usize, right: usize) -> usize {
     left + right

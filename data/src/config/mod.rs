@@ -12,6 +12,11 @@ pub use crate::config::workspace::{Theme, Workspace};
 mod workspace;
 mod site;
 
+pub fn dev_mode() -> bool {
+    // todo
+    false
+}
+
 pub fn site() -> &'static Site {
     &SITE
 }

@@ -7,14 +7,15 @@ use data::config::{site, workspace};
 use data::page::category::Category;
 use data::page::Page;
 
-pub struct DocMap {
-    pub docs: Vec<(Category, Vec<Page>)>,
+pub struct Pages {
+    pub pages: Vec<(Category, Vec<Page>)>,
     pub about: Page,
 }
-impl DocMap {
+
+impl Pages {
     pub fn create() -> Self {
         Self {
-            docs: read_docs().expect("read adoc files failed"),
+            pages: read_docs().expect("read adoc files failed"),
             about: Page::from(&workspace().posts.join(&site().about)),
         }
     }

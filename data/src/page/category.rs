@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 
 use serde_derive::Deserialize;
 
+#[derive(Clone)]
 pub struct Category {
     pub id: u32,
     pub path: PathBuf,

@@ -6,11 +6,11 @@ use anyhow::Error;
 use once_cell::sync::Lazy;
 use serde_derive::Deserialize;
 
-use crate::config::site::Site;
-use crate::config::workspace::Workspace;
+pub use crate::config::site::Site;
+pub use crate::config::workspace::{Theme, Workspace};
 
-pub mod workspace;
-pub mod site;
+mod workspace;
+mod site;
 
 pub fn site() -> &'static Site {
     &SITE

@@ -9,4 +9,5 @@ pub struct Site {
     pub author: String,
     pub lang: String,
     pub slug: String,
+    pub about: String,
 }

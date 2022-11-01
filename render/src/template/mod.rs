@@ -1,15 +1,12 @@
 use std::fs;
-use std::ops::Deref;
 use std::path::Path;
-use std::process::Command;
 
 use anyhow::{anyhow, Error};
 use bimap::BiMap;
 use minify_html_onepass::Cfg;
 use once_cell::sync::Lazy;
 use serde::Serialize;
-use serde_json::Value;
-use tera::{Context, Function, Tera};
+use tera::{Context, Tera};
 
 use data::config::{dev_mode, workspace};
 

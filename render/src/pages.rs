@@ -38,10 +38,21 @@ impl Pages {
 pub fn read_docs() -> Result<Vec<(Category, Vec<Page>)>, Error> {
     let dirs = workspace().posts.read_dir()?
         .into_iter()
-        .filter(|r| r.is_ok())
-        .map(|r| r.unwrap().path())
-        .filter(|r| r.is_dir())
-        .collect::<Vec<PathBuf>>();
+        .filter_map(|r| {
+            if let Ok(v) = r {
+                let slug_path = PathBuf::from(&site().slug);
+                let mut slug = slug_path.components()
+                    .filter(|c| c.as_os_str() != "/")
+                    .filter_map(|c| c.as_os_str().to_str());
+                let path = v.path();
+                if path.is_dir() &&
+                    !path.ends_with("static") &&
+                    !path.ends_with(slug.next().unwrap_or_default()) {
+                    return Some(path);
+                }
+            }
+            None
+        }).collect::<Vec<PathBuf>>();
 
     let mut vec = vec![];
     for path in dirs {

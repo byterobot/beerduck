@@ -1,5 +1,5 @@
 [workspace]
-members = ["data", "archive"]
+members = ["data", "render", "site", "archive"]
 
 [workspace.package]
 version = "0.1.0"
@@ -28,3 +28,5 @@ bimap = "0.6.2"
 minify-html-onepass = "0.10.3"
 
 futures-await-test = "0.3.0"
+
+data = { package = "data", path = "data" }

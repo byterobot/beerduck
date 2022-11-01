@@ -1,0 +1,12 @@
+assets = "assets"
+notes = "notes"
+posts = "posts"
+render = "render"
+publish = "publish"
+temp = "temp"
+
+[theme]
+templates = "theme/templates"
+js = "theme/js"
+css = "theme/css"
+fonts = "theme/fonts"

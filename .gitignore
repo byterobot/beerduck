@@ -7,3 +7,4 @@
 Cargo.lock
 DB_*_URL
 archive/dev.toml
+data/src/config/dev.toml

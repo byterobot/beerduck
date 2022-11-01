@@ -1,8 +1,4 @@
-#![allow(unused_imports, deprecated, unused_must_use, unused_mut, unused_variables, dead_code)]
-
-pub mod config;
-pub mod asciidoc;
-pub mod page;
+pub mod doc_map;
 
 pub fn add(left: usize, right: usize) -> usize {
     left + right

@@ -3,10 +3,7 @@ name = "render"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-data.workspace = true
 anyhow.workspace = true
 serde.workspace = true
 serde_derive.workspace = true
@@ -16,3 +13,5 @@ tera.workspace = true
 bimap.workspace = true
 once_cell.workspace = true
 minify-html-onepass.workspace = true
+
+config.workspace = true

@@ -1,11 +1,11 @@
 use std::path::{Path, PathBuf};
 
 use anyhow::Error;
-use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
 
-use data::config::{site, workspace};
-use data::page::category::Category;
-use data::page::Page;
+use config::{site, workspace};
+
+use crate::page::category::Category;
+use crate::page::Page;
 
 pub struct Pages {
     pub pages: Vec<(Category, Vec<Page>)>,
@@ -20,19 +20,6 @@ impl Pages {
         }
     }
 
-    pub fn listen_change() -> Result<RecommendedWatcher, Error> {
-        let mut watcher = RecommendedWatcher::new(|e: Result<Event, notify::Error>| {
-            if let Ok(event) = e {
-
-            }
-        }, notify::Config::default())?;
-        watcher.watch(&workspace().posts, RecursiveMode::Recursive)?;
-        watcher.watch(&workspace().theme.templates, RecursiveMode::Recursive)?;
-        watcher.watch(&workspace().theme.css, RecursiveMode::Recursive)?;
-        watcher.watch(&workspace().theme.js, RecursiveMode::Recursive)?;
-
-        Ok(watcher)
-    }
 }
 
 pub fn read_docs() -> Result<Vec<(Category, Vec<Page>)>, Error> {

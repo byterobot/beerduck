@@ -1,0 +1,14 @@
+[package]
+name = "asciidoc"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+log.workspace = true
+anyhow.workspace = true
+once_cell.workspace = true
+tl.workspace = true
+chrono.workspace = true
+regex.workspace = true
+
+config.workspace = true

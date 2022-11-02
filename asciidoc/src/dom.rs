@@ -14,7 +14,7 @@ pub fn resolve_img(dom: &mut VDom) -> Option<Vec<String>> {
                 if let Some(Some(v)) = v.attributes_mut().get_mut("src") {
                     match String::from_utf8(v.as_bytes().to_vec()) {
                         Ok(src) => {
-                            v.set(&*resolve_image_path(&src));
+                            let _ = v.set(&*resolve_image_path(&src));
                             list.push(src);
                         }
                         Err(e) => {
@@ -29,15 +29,15 @@ pub fn resolve_img(dom: &mut VDom) -> Option<Vec<String>> {
     Some(list)
 }
 
-pub fn resolve_image_path(path: &str) -> String {
+fn resolve_image_path(path: &str) -> String {
     format!("/static/images/{}", make_relative_path(path))
 }
 
-pub fn make_relative_path(txt: &str) -> Cow<str> {
+fn make_relative_path(txt: &str) -> Cow<str> {
     REG_ABSOLUTE.replace(txt, "")
 }
 
-static REG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.(adoc)$").unwrap());
+// static REG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.(adoc)$").unwrap());
 static REG_ABSOLUTE: Lazy<Regex> = Lazy::new(|| Regex::new("^/").unwrap());
 
 // ----------------- Extract dom info --------------------//

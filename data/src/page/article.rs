@@ -1,8 +1,10 @@
 use std::path::Path;
 
+use anyhow::Error;
 use chrono::NaiveDate;
+use tl::ParserOptions;
 
-use crate::asciidoc;
+use asciidoc::{self, *};
 
 // asciidoc file contents
 pub struct Article {
@@ -21,6 +23,27 @@ pub struct Article {
 
 impl Article {
     pub fn from(file: &Path) -> Self {
-        asciidoc::parse_doc(file).unwrap()
+        Self::parse(file).unwrap()
+    }
+
+    fn parse(file: &Path) -> Result<Self, Error> {
+        let html = asciidoc::convert(file)?;
+        let mut doc = tl::parse(&html, ParserOptions::new())?;
+
+        // 提取dom
+        let page = Article {
+            title: get_title(&doc),
+            author: get_author(&doc),
+            lang: get_lang(&doc),
+            keywords: get_keywords(&doc),
+            description: get_description(&doc),
+            summary: None,
+            created_at: get_date(&doc),
+            updated_at: None,
+            toc_html: get_toc(&doc),
+            content_html:  get_content(&doc),
+            images: resolve_img(&mut doc).unwrap_or_default(),
+        };
+        Ok(page)
     }
 }

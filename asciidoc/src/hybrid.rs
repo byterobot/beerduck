@@ -1,12 +1,12 @@
 pub struct Hybrid {
-    source: Option<String>,
+    _source: Option<String>,
     target: String,
 }
 
 impl Hybrid {
     pub fn parse(text: &str) -> Self {
         if !(text.starts_with("+\n") || text.starts_with("-\n") || text.starts_with("=\n")) {
-            return Self { source: None, target: text.into(), };
+            return Self { _source: None, target: text.into(), };
         }
 
         let (mut origin, mut target) = (String::new(), String::new());
@@ -29,7 +29,7 @@ impl Hybrid {
             }
         }
 
-        Self { source: Some(origin.trim_start().into()), target: target.trim_start().into(), }
+        Self { _source: Some(origin.trim_start().into()), target: target.trim_start().into(), }
     }
 
     pub fn text(&self) -> &str {

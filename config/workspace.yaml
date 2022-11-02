@@ -1,0 +1,28 @@
+notes: notes
+posts: posts
+
+assets:
+  self_dir: assets
+  images: "asserts/images"
+
+publish:
+  self_dir: publish
+  static:
+    self_dir: "publish/static"
+    js: "publish/static/js"
+    css: "publish/static/css"
+    fonts: "publish/static/fonts"
+    images: "publish/static/images"
+
+theme:
+  self_dir: theme
+  templates: "theme/templates"
+  static:
+    self_dir: "theme/static"
+    js: "theme/static/js"
+    css: "theme/static/css"
+    fonts: "theme/static/fonts"
+    images: "theme/static/images"
+
+temp: temp
+

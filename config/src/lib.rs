@@ -2,19 +2,18 @@ use std::env::current_dir;
 use std::fs;
 use std::path::PathBuf;
 
-use anyhow::Error;
 use once_cell::sync::Lazy;
 use serde_derive::Deserialize;
 
-pub use crate::config::site::Site;
-pub use crate::config::workspace::{Theme, Workspace};
+pub use crate::site::*;
+pub use crate::workspace::*;
 
 mod workspace;
 mod site;
 
 pub fn dev_mode() -> bool {
     // todo
-    false
+    true
 }
 
 pub fn site() -> &'static Site {
@@ -26,7 +25,7 @@ pub fn workspace() -> &'static Workspace {
 }
 
 static SITE: Lazy<Site> = Lazy::new(|| {
-    let file = ROOT.join("config.toml");
+    let file = PARENT.join("config.toml");
     match fs::read_to_string(&file) {
         Ok(text) => toml::from_str::<Site>(&text)
             .expect("deserialize config.toml error"),
@@ -34,15 +33,15 @@ static SITE: Lazy<Site> = Lazy::new(|| {
     }
 });
 static WORKSPACE: Lazy<Workspace> = Lazy::new(||
-    toml::from_str::<Workspace>(include_str!("workspace.toml"))
-        .expect("deserialize workspace.toml error")
+    serde_yaml::from_str::<Workspace>(include_str!("../workspace.yaml"))
+        .expect("deserialize workspace.yaml error")
 );
 
-pub static ROOT: Lazy<PathBuf> = Lazy::new(|| {
+pub(crate) static PARENT: Lazy<PathBuf> = Lazy::new(|| {
     #[derive(Deserialize)]
-    struct Root { root: PathBuf, }
+    struct Parent { parent: PathBuf, }
     match cfg!(debug_assertions) {
-        true => toml::from_str::<Root>(include_str!("dev.toml")).unwrap().root,
+        true => toml::from_str::<Parent>(include_str!("../dev.toml")).unwrap().parent,
         _ => current_dir().unwrap(),
     }
 });

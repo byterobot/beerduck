@@ -4,7 +4,7 @@ use anyhow::Error;
 
 use config::{site, workspace};
 
-use crate::page::category::Category;
+use crate::page::{Category, Article};
 use crate::page::Page;
 
 pub struct Pages {

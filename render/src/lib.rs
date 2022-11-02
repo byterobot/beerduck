@@ -3,12 +3,12 @@ use std::path::Path;
 
 use anyhow::{anyhow, Error};
 use bimap::BiMap;
-use minify_html_onepass::Cfg;
+use minify_html_onepass::{Cfg, in_place_str};
 use once_cell::sync::Lazy;
 use serde::Serialize;
 use tera::{Context, Tera};
 
-use config::{dev_mode, workspace};
+use config::workspace;
 
 use crate::register::register;
 
@@ -20,19 +20,19 @@ pub enum Template {
 }
 
 impl Template {
-    pub fn render_write(&self, value: impl Serialize, target: &Path) -> Result<(), Error> {
+    pub fn render(&self, value: impl Serialize) -> Result<String, Error> {
         let template_name = TEMPLATES.get_by_left(self).unwrap();
-        let mut html = TERA.render(template_name, &Context::from_serialize(value)?)?;
+        Ok(TERA.render(template_name, &Context::from_serialize(value)?)?)
+    }
+
+    pub fn render_write(&self, value: impl Serialize, target: &Path) -> Result<(), Error> {
         if let Some(parent) = target.parent() {
             fs::create_dir_all(parent)?;
         }
 
-        let html = match dev_mode() {
-            true => html.as_str(),
-            _ => minify_html_onepass::in_place_str(&mut html, &Cfg::new())
-                .map_err(|e| anyhow!("{:?}", e))?
-        };
-
+        let mut html = self.render(value)?;
+        let html = in_place_str(&mut html, &Cfg::new())
+            .map_err(|e| anyhow!("{:?}", e))?;
         Ok(fs::write(target, html)?)
     }
 }

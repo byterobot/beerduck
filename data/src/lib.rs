@@ -3,5 +3,6 @@
 pub mod page;
 pub mod pages;
 pub mod appoint;
-pub mod publish;
+// pub mod publish;
 pub mod generate;
+pub mod template;

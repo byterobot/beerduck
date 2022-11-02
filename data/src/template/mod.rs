@@ -1,35 +1,41 @@
 use once_cell::sync::Lazy;
 use serde_derive::Serialize;
 
-use crate::config::CONFIG;
+use config::site;
 
-pub(crate) mod article;
+pub(crate) mod page;
 pub(crate) mod about;
 pub(crate) mod items;
 
-pub static GLOBAL: Lazy<GlobalTpl> = Lazy::new(|| GlobalTpl::from(&CONFIG.site) );
-
-#[derive(Serialize)]
-pub struct GlobalTpl {
-    pub title: String,
-    pub author: String,
-    pub subtitle: Option<String>,
-    pub copyright: Option<String>,
-    pub footnote: Option<String>,
-    pub categories_href: String,
-    pub about_href: String,
+pub fn site_tpl<'a>() -> &'a SiteTpl<'a> {
+    &SITE_TPL
 }
 
-impl GlobalTpl {
-    fn from(site: &Site) -> Self {
+#[derive(Serialize)]
+pub struct SiteTpl<'a> {
+    pub title: &'a str,
+    pub author: &'a str,
+    pub subtitle: &'a str,
+    pub copyright: &'a str,
+    pub footnote: &'a str,
+    pub lang: &'a str,
+    pub categories_href: &'a str,
+    pub about_href: &'a str,
+}
+
+impl<'a> SiteTpl<'a> {
+    pub fn new() -> Self {
         Self {
-            title: site.title.clone(),
-            author: site.author.clone(),
-            subtitle: site.subtitle.clone(),
-            copyright: site.copyright.clone(),
-            footnote: site.footnote.clone(),
-            categories_href: "/categories.html".into(),
-            about_href: "/about.html".into(),
+            title: &site().title,
+            author: &site().author,
+            subtitle: &site().subtitle,
+            copyright: &site().copyright,
+            footnote: &site().footnote,
+            lang: &site().lang,
+            categories_href: "/categories.html",
+            about_href: "/about.html",
         }
     }
 }
+
+static SITE_TPL: Lazy<SiteTpl> = Lazy::new(|| SiteTpl::new());

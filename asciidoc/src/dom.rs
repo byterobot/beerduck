@@ -79,9 +79,10 @@ pub fn get_description(doc: &VDom) -> Option<String> {
 pub fn get_toc(doc: &VDom) -> Option<String> {
     let v = doc.get_element_by_id("toc")?
         .get(doc.parser())?
-        .children()?
-        .all(doc.parser())
-        .get(2)?
+        .as_tag()?
+        .query_selector(doc.parser(),"ol")?
+        .next()?
+        .get(doc.parser())?
         .outer_html(doc.parser());
     Some(v.to_string())
 }
@@ -100,4 +101,24 @@ pub fn get_content(doc: &VDom) -> Option<String> {
         .get(doc.parser())?
         .outer_html(doc.parser());
     Some(v.trim().to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use tl::queryselector::iterable::QueryIterable;
+    use super::*;
+
+    #[test]
+    fn test() {
+        let doc = tl::parse(include_str!("/Users/me/ch03.html"), tl::ParserOptions::new()).unwrap();
+        let v = doc.get_element_by_id("toc").unwrap()
+            .get(doc.parser()).unwrap()
+            .as_tag().unwrap()
+            .query_selector(doc.parser(),"ol").unwrap()
+            .next().unwrap()
+            .get(doc.parser()).unwrap()
+            .outer_html(doc.parser());
+
+        println!("{}", c);
+    }
 }

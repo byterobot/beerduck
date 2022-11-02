@@ -22,15 +22,10 @@ pub struct Article {
 }
 
 impl Article {
-    pub fn from(file: &Path) -> Self {
-        Self::parse(file).unwrap()
-    }
-
-    fn parse(file: &Path) -> Result<Self, Error> {
+    pub fn from(file: &Path) -> Result<Self, Error> {
         let html = asciidoc::convert(file)?;
         let mut doc = tl::parse(&html, ParserOptions::new())?;
 
-        // 提取dom
         let page = Article {
             title: get_title(&doc),
             author: get_author(&doc),

@@ -1,61 +1,37 @@
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
+use anyhow::Error;
 use serde_derive::Deserialize;
 
-#[derive(Clone)]
+#[derive(Clone, Deserialize, Default)]
 pub struct Category {
-    pub id: u32,
-    pub path: PathBuf,
+    pub name: String,
+    pub show_name: String,
     pub topic: bool,
-    pub name: Option<String>, // showing name
 }
 
 #[derive(Deserialize, Default)]
 struct Config {
-    topic: bool,
-    name: Option<String>,
+    pub name: Option<String>,
+    pub topic: bool,
 }
 
 impl Category {
+    pub fn from(path: &Path) -> Result<Self, Error> {
+        let mut category = Category::default();
+        category.name = path.file_name().unwrap().to_str().unwrap().to_string();
+        category.show_name = category.name.clone();
 
-    pub fn from(path: &Path) -> Self {
-        let mut category = Self {
-            id: 0,
-            path: path.to_path_buf(),
-            topic: false,
-            name: None
-        };
-        category.update_config();
-        category
-    }
-
-    pub fn update_config(&mut self) {
-        let path = self.path.join("category.toml");
-        let config = if path.exists() {
-            match fs::read_to_string(&path) {
-                Ok(text) => match toml::from_str::<Config>(&text) {
-                    Ok(config) => config,
-                    Err(e) => panic!("deserialize `{:?}` failed, {}", &path, e),
-                },
-                Err(e) => panic!("read file: `{:?}` failed, {}", &path, e),
+        let config = path.join("category.toml");
+        if config.exists() {
+            let text = fs::read_to_string(&config)?;
+            let c = toml::from_str::<Config>(&text)?;
+            category.topic = c.topic;
+            if let Some(name) = c.name {
+                category.show_name = name;
             }
-        } else {
-            Config::default()
-        };
-
-        self.topic = config.topic;
-        self.name = config.name;
+        }
+        Ok(category)
     }
-
-    // use for url path
-    pub fn url_name(&self) -> &str {
-        self.path.file_name().unwrap().to_str().unwrap()
-    }
-
-    // use for url alert
-    pub fn show_name(&self) -> &str {
-        self.name.as_ref().map(|v| v.as_str()).unwrap_or(self.url_name())
-    }
-
 }

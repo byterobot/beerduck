@@ -1,6 +1,6 @@
 use std::env::current_dir;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use once_cell::sync::Lazy;
 use serde_derive::Deserialize;
@@ -12,8 +12,7 @@ mod workspace;
 mod site;
 
 pub fn dev_mode() -> bool {
-    // todo
-    true
+    cfg!(debug_assertions)
 }
 
 pub fn site() -> &'static Site {
@@ -24,8 +23,12 @@ pub fn workspace() -> &'static Workspace {
     &WORKSPACE
 }
 
+pub fn parent() -> &'static Path {
+    &PARENT
+}
+
 static SITE: Lazy<Site> = Lazy::new(|| {
-    let file = PARENT.join("config.toml");
+    let file = parent().join("config.toml");
     match fs::read_to_string(&file) {
         Ok(text) => toml::from_str::<Site>(&text)
             .expect("deserialize config.toml error"),

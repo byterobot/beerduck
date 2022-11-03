@@ -8,7 +8,7 @@ use once_cell::sync::Lazy;
 use serde::Serialize;
 use tera::{Context, Tera};
 
-use config::workspace;
+use config::{parent, workspace};
 
 use crate::register::register;
 
@@ -38,7 +38,8 @@ impl Template {
 }
 
 static TERA: Lazy<Tera> = Lazy::new(|| {
-    let dir = workspace().theme.templates.join("*.html");
+    let dir = parent().join(&workspace().theme.templates).join("*.html");
+    // let dir = workspace().theme.templates.join("*.html");
     let mut tera = Tera::new(dir.to_str().unwrap()).unwrap();
     tera.full_reload().unwrap();
     tera.autoescape_on(Vec::new());

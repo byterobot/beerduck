@@ -16,7 +16,7 @@ pub fn gen<'a>(article: &'a Article, category: Option<&'a Category>) -> Result<S
     }
 }
 
-pub fn gen_write<'a>(file_stem: &'a str, article: &'a Article, category: Option<&'a Category>) -> Result<(), Error> {
+pub fn write<'a>(file_stem: &'a str, article: &'a Article, category: Option<&'a Category>) -> Result<(), Error> {
     let date = article.created_at.as_ref().unwrap_or(&NaiveDate::MIN);
     let target = parent().join(&workspace().publish.self_dir)
         .join(&page_url(file_stem, date, category));

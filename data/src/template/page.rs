@@ -21,16 +21,20 @@ pub struct PageTpl<'a> {
     pub updated_at: Option<(i32, String, String)>,
     pub toc_html: Option<&'a str>,
     pub content_html: &'a str,
-
     pub single_page: bool,
-
     pub category_name: &'a str,
     pub category_href: String,
-
     pub site: &'a SiteTpl<'a>,
 }
 
 impl<'a> PageTpl<'a> {
+    pub fn from(a: &'a Article, c: &'a Category) -> PageTpl<'a> {
+        let mut tpl = Self::single(a);
+        tpl.single_page = false;
+        tpl.category_name = &c.show_name;
+        tpl.category_href = format!("/categories/{}.html", c.name);
+        tpl
+    }
 
     pub fn single(a: &'a Article) -> PageTpl<'a> {
         let site = site_tpl();
@@ -45,20 +49,11 @@ impl<'a> PageTpl<'a> {
             updated_at: a.updated_at.as_ref().map(|d| cast_date(d)),
             toc_html: a.toc_html.as_ref().map(|v| v.as_str()),
             content_html: a.content_html.as_ref().map(|v| v.as_str()).unwrap_or(""),
-
             single_page: true,
             category_name: "",
             category_href: "".to_string(),
             site: site_tpl(),
         }
-    }
-
-    pub fn from(a: &'a Article, c: &'a Category) -> PageTpl<'a> {
-        let mut tpl = Self::single(a);
-        tpl.single_page = false;
-        tpl.category_name = &c.show_name;
-        tpl.category_href = format!("/categories/{}.html", c.name);
-        tpl
     }
 }
 

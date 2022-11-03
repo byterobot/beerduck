@@ -1,8 +1,10 @@
+use std::borrow::Cow;
 use std::env::current_dir;
 use std::fs;
 use std::path::{Path, PathBuf};
 
 use once_cell::sync::Lazy;
+use regex::Regex;
 use serde_derive::Deserialize;
 
 pub use crate::site::*;
@@ -48,3 +50,10 @@ pub(crate) static PARENT: Lazy<PathBuf> = Lazy::new(|| {
         _ => current_dir().unwrap(),
     }
 });
+
+pub fn make_relative_path(txt: &str) -> Cow<str> {
+    REG_ABSOLUTE.replace(txt, "")
+}
+
+// static REG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.(adoc)$").unwrap());
+static REG_ABSOLUTE: Lazy<Regex> = Lazy::new(|| Regex::new("^/").unwrap());

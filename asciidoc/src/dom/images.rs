@@ -1,12 +1,9 @@
-use std::borrow::Cow;
 use std::str;
 
 use log::error;
-use once_cell::sync::Lazy;
-use regex::Regex;
 use tl::{NodeHandle, VDom};
 
-use config::{dev_mode, workspace};
+use config::{dev_mode, make_relative_path, workspace};
 
 pub fn get_content_images(dom: &VDom) -> Option<Vec<String>> {
     let vec = content_image_nodes(dom)?.into_iter()
@@ -58,10 +55,3 @@ fn resolve_content_image(path: &str) -> String {
         },
     }
 }
-
-fn make_relative_path(txt: &str) -> Cow<str> {
-    REG_ABSOLUTE.replace(txt, "")
-}
-
-// static REG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.(adoc)$").unwrap());
-static REG_ABSOLUTE: Lazy<Regex> = Lazy::new(|| Regex::new("^/").unwrap());

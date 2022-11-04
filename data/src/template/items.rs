@@ -7,14 +7,14 @@ use crate::template::{site_tpl, SiteTpl};
 use crate::template::page::cast_date;
 
 #[derive(Serialize)]
-pub struct ItemsTpl<'a> {
+pub struct CategoryTpl<'a> {
     pub title: &'a str,
-    pub items: Vec<Item<'a>>,
+    pub items: Vec<ArticleItem<'a>>,
     pub site: &'a SiteTpl<'a>,
 }
 
 #[derive(Default, Serialize)]
-pub struct Item<'a> {
+pub struct ArticleItem<'a> {
     pub title: &'a str,
     pub href: String,
     pub category: &'a str,
@@ -24,12 +24,12 @@ pub struct Item<'a> {
     pub summary: Option<&'a str>,
 }
 
-impl<'a> ItemsTpl<'a> {
+impl<'a> CategoryTpl<'a> {
     pub fn from(articles: &'a [(String, Article)], category: &'a Category) -> Self {
         let mut items = vec![];
         for (file_stem, article) in articles {
             let date = article.created_at.as_ref().unwrap_or(&NaiveDate::MIN);
-            let item = Item {
+            let item = ArticleItem {
                 title: article.title.as_ref().map(|v| v.as_str()).unwrap_or("Untitled"),
                 href: page_url(file_stem, date, Some(category)),
                 category: &category.show_name,
@@ -42,3 +42,30 @@ impl<'a> ItemsTpl<'a> {
         Self { title: &category.show_name, items, site: site_tpl(), }
     }
 }
+
+
+#[derive(Serialize)]
+pub struct CategoriesTpl<'a> {
+    pub items: Vec<ArticleItem<'a>>,
+    pub site: &'a SiteTpl<'a>,
+}
+
+#[derive(Default, Serialize)]
+pub struct CategoryItem<'a> {
+    pub title: &'a str,
+    pub href: String,
+    // pub category: &'a str,
+    // pub category_href: String,
+    // pub pin: bool,
+}
+
+impl CategoriesTpl {
+    pub fn from(categories: &[Category]) -> Self {
+        let items = categories.into_iter().map(|c| CategoryItem {
+            title: &c.show_name,
+            href: format!("/categories/{}.html", c.name),
+        }).collect();
+        Self { items, site: site_tpl(), }
+    }
+}
+

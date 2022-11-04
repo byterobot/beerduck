@@ -1,9 +1,8 @@
 use chrono::NaiveDate;
 use serde_derive::Serialize;
 
-use crate::generate::page::page_url;
 use crate::page::{Article, Category};
-use crate::template::{site_tpl, SiteTpl};
+use crate::template::{page_url, site_tpl, SiteTpl};
 use crate::template::page::cast_date;
 
 #[derive(Serialize)]

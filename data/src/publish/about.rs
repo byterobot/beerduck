@@ -2,8 +2,8 @@ use anyhow::Error;
 
 use config::{parent, site};
 
-use crate::generate::page;
 use crate::page::Article;
+use crate::publish::page;
 
 pub fn gen() -> Result<String, Error> {
     let file = parent().join(format!("{}.adoc", site().about));

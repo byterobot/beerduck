@@ -6,9 +6,8 @@ use chrono::NaiveDate;
 use config::{parent, workspace};
 use render::Template;
 
-use crate::generate::page;
-use crate::generate::page::page_url;
 use crate::page::{Article, Category};
+use crate::publish::page;
 use crate::template::category::{ArticleItem, CategoryTpl};
 use crate::template::page::PageTpl;
 

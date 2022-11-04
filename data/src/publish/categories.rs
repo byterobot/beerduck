@@ -5,8 +5,8 @@ use anyhow::Error;
 use config::{parent, workspace};
 use render::Template;
 
-use crate::generate::category;
 use crate::page::Category;
+use crate::publish::category;
 use crate::template::category::CategoriesTpl;
 
 pub fn gen() -> Result<String, Error> {

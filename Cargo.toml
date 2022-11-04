@@ -28,6 +28,7 @@ tera = "1.17.1"
 bimap = "0.6.2"
 minify-html-onepass = "0.10.3"
 fs_extra = "1.2.0"
+url = "2.3.1"
 
 futures-await-test = "0.3.0"
 

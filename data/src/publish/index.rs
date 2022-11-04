@@ -3,7 +3,7 @@ use anyhow::Error;
 use config::parent;
 use render::Template;
 
-use crate::generate::{categories, category};
+use crate::publish::{categories, category};
 use crate::template::category::{CategoryTpl, IndexTpl};
 
 pub fn gen() -> Result<String, Error> {

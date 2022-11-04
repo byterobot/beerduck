@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 pub enum Appoint {
     // include single path
-    Page(PathBuf),
+    Page(Option<String>, String),
     // category folder name
     Category(String), // rebuild files inside category
 

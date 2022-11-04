@@ -5,7 +5,7 @@ use config::site;
 
 pub(crate) mod page;
 pub(crate) mod about;
-pub(crate) mod items;
+pub(crate) mod category;
 
 pub fn site_tpl<'a>() -> &'a SiteTpl<'a> {
     &SITE_TPL

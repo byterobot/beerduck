@@ -46,7 +46,7 @@ impl<'a> CategoryTpl<'a> {
 
 #[derive(Serialize)]
 pub struct CategoriesTpl<'a> {
-    pub items: Vec<ArticleItem<'a>>,
+    pub items: Vec<CategoryItem<'a>>,
     pub site: &'a SiteTpl<'a>,
 }
 
@@ -59,8 +59,8 @@ pub struct CategoryItem<'a> {
     // pub pin: bool,
 }
 
-impl CategoriesTpl {
-    pub fn from(categories: &[Category]) -> Self {
+impl<'a> CategoriesTpl<'a> {
+    pub fn from(categories: &'a [Category]) -> Self {
         let items = categories.into_iter().map(|c| CategoryItem {
             title: &c.show_name,
             href: format!("/categories/{}.html", c.name),
@@ -69,3 +69,15 @@ impl CategoriesTpl {
     }
 }
 
+
+#[derive(Serialize)]
+pub struct IndexTpl<'a> {
+    pub items: Vec<ArticleItem<'a>>,
+    pub site: &'a SiteTpl<'a>,
+}
+
+impl<'a> IndexTpl<'a> {
+    pub fn from(items: Vec<ArticleItem<'a>>) -> Self {
+        Self { items, site: site_tpl() }
+    }
+}

@@ -9,7 +9,7 @@ use render::Template;
 use crate::generate::page;
 use crate::generate::page::page_url;
 use crate::page::{Article, Category};
-use crate::template::items::{ArticleItem, CategoryTpl};
+use crate::template::category::{ArticleItem, CategoryTpl};
 use crate::template::page::PageTpl;
 
 pub fn gen(path: &Path) -> Result<String, Error> {
@@ -31,7 +31,7 @@ pub fn write(path: &Path) -> Result<(), Error> {
     Template::Category.render_write(value, &target)
 }
 
-fn create(path: &Path) -> Result<(Category, Vec<(String, Article)>), Error> {
+pub fn create(path: &Path) -> Result<(Category, Vec<(String, Article)>), Error> {
     let category = Category::from(&path)?;
     let mut articles = vec![];
     for p in path.read_dir()? {

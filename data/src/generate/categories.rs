@@ -7,7 +7,7 @@ use render::Template;
 
 use crate::generate::category;
 use crate::page::Category;
-use crate::template::items::CategoriesTpl;
+use crate::template::category::CategoriesTpl;
 
 pub fn gen() -> Result<String, Error> {
     let (categories, _) = create()?;
@@ -27,10 +27,10 @@ pub fn write() -> Result<(), Error> {
     Template::Categories.render_write(value, &target)
 }
 
-fn create() -> Result<(Vec<Category>, Vec<PathBuf>), Error> {
+pub fn create() -> Result<(Vec<Category>, Vec<PathBuf>), Error> {
     let dir = parent().join(&workspace().posts).read_dir()?
         .into_iter()
-        .filter(|v| v.is_ok() && v.unwrap().path().is_dir())
+        .filter(|v| v.is_ok() && v.as_ref().unwrap().path().is_dir())
         .map(|v| v.unwrap().path())
         .collect::<Vec<PathBuf>>();
 
@@ -41,5 +41,5 @@ fn create() -> Result<(Vec<Category>, Vec<PathBuf>), Error> {
             categories.push(Category::from(&path)?);
         }
     }
-    Ok((categories, dir.collect()))
+    Ok((categories, dir))
 }

@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 
 use anyhow::Error;
 
-use config::{parent, workspace};
+use config::{parent, site, workspace};
 use render::Template;
 
 use crate::page::Category;
@@ -36,8 +36,10 @@ pub fn create() -> Result<(Vec<Category>, Vec<PathBuf>), Error> {
     let mut categories = vec![];
     for path in &dir {
         let file_stem = path.file_stem().unwrap().to_str().unwrap();
-        if file_stem != "static" && file_stem != "index" {
-            categories.push(Category::from(&path)?);
+        match file_stem {
+            "static" | "index" | "categories" => (),
+            _ if file_stem == site().slug => (),
+            _ => categories.push(Category::from(&path)?),
         }
     }
     Ok((categories, dir))

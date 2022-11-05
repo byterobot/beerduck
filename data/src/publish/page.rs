@@ -1,3 +1,4 @@
+use std::fs;
 use std::path::Path;
 
 use anyhow::Error;
@@ -19,6 +20,7 @@ pub fn gen<'a>(article: &'a Article, category: Option<&'a Category>) -> Result<S
 
 pub fn write<'a>(file_stem: &'a str, article: &'a Article, category: Option<&'a Category>)
     -> Result<(), Error> {
+    copy_images(&article.images)?;
     let date = article.created_at.as_ref().unwrap_or(&NaiveDate::MIN);
     let target = parent().join(&workspace().publish.self_dir)
         .join(make_relative_path(&page_url(file_stem, date, category)).as_ref());
@@ -26,6 +28,21 @@ pub fn write<'a>(file_stem: &'a str, article: &'a Article, category: Option<&'a 
         Some(c) =>
             Template::Article.render_write(PageTpl::from(&article, c), &target)?,
         _ => Template::About.render_write(PageTpl::single(&article), &target)?,
+    }
+    Ok(())
+}
+
+fn copy_images(images: &[String]) -> Result<(), Error> {
+    let files = images.iter().map(|v| {
+        let name = make_relative_path(v);
+        let src = parent().join(&workspace().assets.images).join(name.as_ref());
+        let target = parent().join(&workspace().publish.static_.images).join(name.as_ref());
+        (src, target)
+    });
+
+    for (src, target) in files {
+        fs::create_dir_all(target.parent().unwrap());
+        fs::copy(&src, &target)?;
     }
     Ok(())
 }

@@ -1,6 +1,8 @@
+use std::fs;
 use anyhow::Error;
+use fs_extra::dir::CopyOptions;
 use log::debug;
-use config::parent;
+use config::{parent, workspace};
 use crate::appoint::Appoint;
 use crate::page::{Article, Category};
 
@@ -33,8 +35,19 @@ pub fn get(point: &Appoint) -> Result<String, Error> {
 }
 
 pub fn publish() -> Result<(), Error> {
+    copy_static()?;
     categories::write()?;
     about::write()?;
     index::write()?;
+    Ok(())
+}
+
+fn copy_static() -> Result<(), Error> {
+    let from = parent().join(&workspace().theme.static_.self_dir);
+    let to = parent().join(&workspace().publish.self_dir);
+    fs::create_dir_all(&to)?;
+    let mut opts = CopyOptions::new();
+    opts.overwrite = true;
+    fs_extra::dir::copy(from, to, &opts)?;
     Ok(())
 }

@@ -16,6 +16,7 @@ serde_derive.workspace = true
 serde_yaml.workspace = true
 notify.workspace = true
 toml.workspace = true
+fs_extra.workspace = true
 
 config.workspace = true
 asciidoc.workspace = true

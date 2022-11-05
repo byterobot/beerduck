@@ -18,7 +18,6 @@ async-std.workspace = true
 anyhow.workspace = true
 tide.workspace = true
 notify.workspace = true
-fs_extra.workspace = true
 
 config.workspace = true
 data.workspace = true

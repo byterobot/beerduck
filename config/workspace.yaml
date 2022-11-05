@@ -3,10 +3,12 @@ posts: posts
 
 assets:
   self_dir: assets
-  images: "asserts/images"
+  images: "assets/images"
 
 publish:
   self_dir: publish
+  categories_dir: "publish/categories"
+  categories_index: "publish/categories.html"
   static:
     self_dir: "publish/static"
     js: "publish/static/js"

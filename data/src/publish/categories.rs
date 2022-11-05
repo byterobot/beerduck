@@ -22,8 +22,7 @@ pub fn write() -> Result<(), Error> {
     }
 
     let value = CategoriesTpl::from(&categories);
-    let target = parent().join(&workspace().publish.self_dir)
-        .join("categories.html");
+    let target = parent().join(&workspace().publish.categories_index);
     Template::Categories.render_write(value, &target)
 }
 

@@ -1,9 +1,9 @@
 use std::fs;
 use std::path::Path;
 
-use anyhow::{anyhow, Error};
+use anyhow::Error;
 use bimap::BiMap;
-use minify_html_onepass::{Cfg, in_place_str};
+// use minify_html_onepass::{Cfg, in_place_str};
 use once_cell::sync::Lazy;
 use serde::Serialize;
 use tera::{Context, Tera};
@@ -30,16 +30,15 @@ impl Template {
             fs::create_dir_all(parent)?;
         }
 
-        let mut html = self.render(value)?;
-        let html = in_place_str(&mut html, &Cfg::new())
-            .map_err(|e| anyhow!("{:?}", e))?;
+        let html = self.render(value)?;
+        // let html = in_place_str(&mut html, &Cfg::new())
+        //     .map_err(|e| anyhow!("{:?}", e))?;
         Ok(fs::write(target, html)?)
     }
 }
 
 static TERA: Lazy<Tera> = Lazy::new(|| {
     let dir = parent().join(&workspace().theme.templates).join("*.html");
-    // let dir = workspace().theme.templates.join("*.html");
     let mut tera = Tera::new(dir.to_str().unwrap()).unwrap();
     tera.full_reload().unwrap();
     tera.autoescape_on(Vec::new());

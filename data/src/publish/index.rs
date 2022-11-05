@@ -1,6 +1,6 @@
 use anyhow::Error;
 
-use config::parent;
+use config::{parent, workspace};
 use render::Template;
 
 use crate::publish::{categories, category};
@@ -28,7 +28,7 @@ fn create(write: bool) -> Result<Option<String>, Error> {
     }
 
     let index_tpl = IndexTpl::from(article_items);
-    let target = parent().join("index.html");
+    let target = parent().join(&workspace().publish.self_dir).join("index.html");
     match write {
         true => Template::Index.render_write(index_tpl, &target).map(|_| None),
         _ => Template::Index.render(index_tpl).map(|v| Some(v)),

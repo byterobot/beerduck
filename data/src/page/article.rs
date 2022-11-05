@@ -25,7 +25,7 @@ impl Article {
     pub fn from(file: &Path) -> Result<Self, Error> {
         let html = asciidoc::convert(file)?;
         let mut doc = tl::parse(&html, ParserOptions::new())?;
-        resolve_images(&mut doc);
+        // resolve_images(&mut doc);
 
         let page = Article {
             title: get_title(&doc),
@@ -38,7 +38,8 @@ impl Article {
             updated_at: None,
             toc_html: get_toc(&doc),
             content_html:  get_content(&doc),
-            images: get_content_images(&doc).unwrap_or_default(),
+            images: Vec::new(),
+            // images: get_content_images(&doc).unwrap_or_default(),
         };
         Ok(page)
     }

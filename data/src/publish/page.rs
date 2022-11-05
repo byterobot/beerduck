@@ -3,7 +3,7 @@ use std::path::Path;
 use anyhow::Error;
 use chrono::{Datelike, NaiveDate};
 
-use config::{parent, site, workspace};
+use config::{make_relative_path, parent, site, workspace};
 use render::Template;
 
 use crate::page::{Article, Category};
@@ -17,10 +17,11 @@ pub fn gen<'a>(article: &'a Article, category: Option<&'a Category>) -> Result<S
     }
 }
 
-pub fn write<'a>(file_stem: &'a str, article: &'a Article, category: Option<&'a Category>) -> Result<(), Error> {
+pub fn write<'a>(file_stem: &'a str, article: &'a Article, category: Option<&'a Category>)
+    -> Result<(), Error> {
     let date = article.created_at.as_ref().unwrap_or(&NaiveDate::MIN);
     let target = parent().join(&workspace().publish.self_dir)
-        .join(&page_url(file_stem, date, category));
+        .join(make_relative_path(&page_url(file_stem, date, category)).as_ref());
     match category {
         Some(c) =>
             Template::Article.render_write(PageTpl::from(&article, c), &target)?,

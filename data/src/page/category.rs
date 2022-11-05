@@ -13,7 +13,9 @@ pub struct Category {
 
 #[derive(Deserialize, Default)]
 struct Config {
+    #[serde(default)]
     pub name: Option<String>,
+    #[serde(default)]
     pub topic: bool,
 }
 

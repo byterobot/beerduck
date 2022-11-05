@@ -23,15 +23,18 @@ pub struct Theme {
     pub self_dir: String,
     // #[serde(deserialize_with = "de_path")]
     pub templates: String,
-    // #[serde(rename = "static")]
+    #[serde(rename = "static")]
     pub static_: Static,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Publish {
     pub self_dir: String,
-    // #[serde(rename = "static")]
+    #[serde(rename = "static")]
     pub static_: Static,
+
+    pub categories_dir: String,
+    pub categories_index: String,
 }
 
 #[derive(Debug, Deserialize)]

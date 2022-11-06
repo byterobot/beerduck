@@ -1,9 +1,10 @@
 use std::env::args;
 use std::error::Error;
 
-use log::error;
+use log::{error, LevelFilter};
+use simplelog::{ColorChoice, CombinedLogger, ConfigBuilder, TerminalMode, TermLogger};
 
-use app::{init_log, start_server};
+use app::start_server;
 use config::set_mode;
 use data::publish::publish;
 
@@ -24,4 +25,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
     }
     Ok(())
+}
+
+fn init_log() {
+    CombinedLogger::init(vec![
+        TermLogger::new(
+            LevelFilter::Debug,
+            ConfigBuilder::new().add_filter_allow_str("app").build(),
+            TerminalMode::Mixed,
+            ColorChoice::Auto)
+    ]).unwrap()
 }

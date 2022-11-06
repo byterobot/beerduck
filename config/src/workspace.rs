@@ -1,7 +1,5 @@
 use serde_derive::Deserialize;
 
-// use crate::PARENT;
-
 #[derive(Debug, Deserialize)]
 pub struct Workspace {
     // #[serde(deserialize_with = "de_path")]

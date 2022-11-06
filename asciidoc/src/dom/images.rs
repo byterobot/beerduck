@@ -3,7 +3,7 @@ use std::str;
 use log::error;
 use tl::{NodeHandle, VDom};
 
-use config::{dev_mode, make_relative_path, workspace};
+use config::{live_mode, make_relative_path, workspace};
 
 pub fn get_content_images(dom: &VDom) -> Option<Vec<String>> {
     let vec = content_image_nodes(dom)?.into_iter()
@@ -46,7 +46,7 @@ fn modify_image_path(dom: &mut VDom, n: NodeHandle) -> Option<()> {
 }
 
 fn resolve_content_image(path: &str) -> String {
-    match dev_mode() {
+    match live_mode() {
         true => format!("/{}/{}", workspace().assets.images, make_relative_path(path)),
         _ => {
             let dir = workspace().publish.static_.images

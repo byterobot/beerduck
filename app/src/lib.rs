@@ -3,7 +3,6 @@
 use anyhow::Error;
 use log::{info, LevelFilter};
 use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
-use simplelog::{ColorChoice, CombinedLogger, ConfigBuilder, TerminalMode, TermLogger};
 use tide::{Request, StatusCode};
 
 use config::{parent, workspace};
@@ -24,8 +23,8 @@ pub async fn start_server() -> Result<(), Error> {
             Some(html) => Ok(html)
         }
     });
-    app.listen("0.0.0.0:2020").await?;
     info!("listening at 0.0.0.0:2020");
+    app.listen("0.0.0.0:2020").await?;
     Ok(())
 }
 
@@ -40,14 +39,4 @@ pub fn listen_modified() -> Result<RecommendedWatcher, Error> {
     watcher.watch(&parent().join(&workspace().theme.self_dir), RecursiveMode::Recursive)?;
     watcher.watch(&parent().join(&workspace().assets.images), RecursiveMode::Recursive)?;
     Ok(watcher)
-}
-
-pub fn init_log() {
-    CombinedLogger::init(vec![
-        TermLogger::new(
-            LevelFilter::Debug,
-            ConfigBuilder::new().add_filter_allow_str("adocnote").build(),
-            TerminalMode::Mixed,
-            ColorChoice::Auto)
-    ]).unwrap()
 }

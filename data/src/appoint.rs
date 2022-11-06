@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-pub enum Appoint {
+pub enum Endpoint {
     // include single path
     Page(Option<String>, String),
     // category folder name
@@ -13,9 +13,8 @@ pub enum Appoint {
     Unknown(String), //
 }
 
-impl Appoint {
-    pub fn from(url: &str) -> Self {
-
+impl Endpoint {
+    pub fn from(path: &str) -> Option<Self> {
 
         todo!()
     }

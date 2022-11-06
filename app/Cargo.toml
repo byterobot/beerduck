@@ -15,6 +15,7 @@ path = "src/lib.rs"
 log.workspace = true
 simplelog.workspace = true
 async-std.workspace = true
+async-trait.workspace = true
 anyhow.workspace = true
 tide.workspace = true
 notify.workspace = true

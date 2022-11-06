@@ -6,5 +6,3 @@
 *.iml
 Cargo.lock
 DB_*_URL
-archive/dev.toml
-config/dev.toml

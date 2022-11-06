@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use anyhow::Error;
 use chrono::NaiveDate;
@@ -42,4 +42,16 @@ pub fn create(path: &Path) -> Result<(Category, Vec<(String, Article)>), Error> 
         }
     }
     Ok((category, articles))
+}
+
+pub fn files(path: &Path) -> Result<Vec<PathBuf>, Error> {
+    let mut files = vec![];
+    for p in path.read_dir()? {
+        let file = p?.path();
+        let name = file.file_name().unwrap().to_str().unwrap();
+        if name.ends_with(".adoc") && name != "index.adoc" {
+            files.push(file);
+        }
+    }
+    Ok(files)
 }

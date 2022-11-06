@@ -2,6 +2,7 @@ use std::borrow::Cow;
 use std::env::current_dir;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -13,8 +14,14 @@ pub use crate::workspace::*;
 mod workspace;
 mod site;
 
+static DEV_MODE: AtomicBool = AtomicBool::new(true);
+
+pub fn set_mode(dev_mode: bool) {
+    DEV_MODE.store(dev_mode, Ordering::Relaxed);
+}
+
 pub fn dev_mode() -> bool {
-    cfg!(debug_assertions)
+    DEV_MODE.load(Ordering::Relaxed)
 }
 
 pub fn site() -> &'static Site {

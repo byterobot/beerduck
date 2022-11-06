@@ -1,5 +1,5 @@
 [workspace]
-members = ["config", "asciidoc", "data", "render", "app", "archive"]
+members = ["config", "asciidoc", "data", "render", "app"]
 
 [workspace.package]
 version = "0.1.0"

@@ -31,17 +31,12 @@ pub fn write(path: &Path) -> Result<(), Error> {
 }
 
 pub fn create(path: &Path) -> Result<(Category, Vec<(String, Article)>), Error> {
-    let category = Category::from(&path)?;
     let mut articles = vec![];
-    for p in path.read_dir()? {
-        let file = p?.path();
-        let name = file.file_name().unwrap().to_str().unwrap();
-        if name.ends_with(".adoc") && name != "index.adoc" {
-            let name_stem = file.file_stem().unwrap().to_str().unwrap().to_string();
-            articles.push((name_stem, Article::from(&file)?));
-        }
+    for file in files(path)? {
+        let name_stem = file.file_stem().unwrap().to_str().unwrap().to_string();
+        articles.push((name_stem, Article::from(&file)?));
     }
-    Ok((category, articles))
+    Ok((Category::from(&path)?, articles))
 }
 
 pub fn files(path: &Path) -> Result<Vec<PathBuf>, Error> {

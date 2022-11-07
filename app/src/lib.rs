@@ -2,7 +2,6 @@
 
 use std::collections::HashMap;
 use std::sync::Mutex;
-use std::thread;
 
 use anyhow::Error;
 use async_std::prelude::StreamExt;
@@ -23,7 +22,7 @@ pub async fn start_server() -> Result<(), Error> {
     let listener = listen_modified()?;
     let mut app = tide::new();
     app.at("/ws/:uuid").get(WebSocket::new(ws_handler));
-    app.at("/static/images").serve_dir(parent().join(&workspace().assets.images))?;
+    app.at("/assets/images").serve_dir(parent().join(&workspace().assets.images))?;
     app.at("/static").serve_dir(parent().join(&workspace().theme.static_.self_dir))?;
     app.at("*").with(HtmlMiddleware::new()).get(|req: Request<_>| async move {
         match data::endpoint(req.url().path()) {
@@ -58,13 +57,14 @@ async fn on_changed(event: Event) -> Result<(), Error> {
     println!("file changed: {:?}", event);
     for v in STREAMS.lock().expect("lock STREAMS failed").values() {
         let file = event.paths.first().map(|v| v.to_str().unwrap()).unwrap_or("");
-        v.send_string(file.into()).await?;
+        if let Err(e) = v.send_string(file.into()).await {
+            error!("send to client failed: {:?}", e);
+        }
     }
     Ok(())
 }
 
-async fn ws_handler<State>(request: Request<State>, mut stream: WebSocketConnection)
-                           -> tide::Result<()> {
+async fn ws_handler<S>(request: Request<S>, mut stream: WebSocketConnection) -> tide::Result<()> {
     // open a connection
     let uuid = request.param("uuid")?;
     STREAMS.lock().expect("lock STREAMS failed").insert(uuid.to_string(), stream.clone());

@@ -2,7 +2,7 @@ use chrono::{Datelike, NaiveDate};
 use once_cell::sync::Lazy;
 use serde_derive::Serialize;
 
-use config::site;
+use config::{live_mode, site};
 
 use crate::page::Category;
 
@@ -24,6 +24,7 @@ pub struct SiteTpl<'a> {
     pub lang: &'a str,
     pub categories_href: &'a str,
     pub about_href: &'a str,
+    pub live_mode: bool,
 }
 
 impl<'a> SiteTpl<'a> {
@@ -37,6 +38,7 @@ impl<'a> SiteTpl<'a> {
             lang: &site().lang,
             categories_href: "/categories.html",
             about_href: "/about.html",
+            live_mode: live_mode(),
         }
     }
 }

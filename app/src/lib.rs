@@ -1,16 +1,17 @@
 #![allow(unused_imports, deprecated, unused_must_use, unused_mut, unused_variables, dead_code)]
 
 use std::collections::HashMap;
-use std::sync::Mutex;
+use std::time::{Duration, Instant};
 
 use anyhow::Error;
 use async_std::prelude::StreamExt;
+use async_std::sync::Mutex;
 use async_std::task::block_on;
-use log::{debug, error, info, LevelFilter};
+use log::{debug, error, info};
 use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
-use once_cell::sync::{Lazy, OnceCell};
-use tide::{Endpoint, Request, sse, StatusCode};
-use tide_websockets::{Message, WebSocket, WebSocketConnection};
+use once_cell::sync::Lazy;
+use tide::{Request, StatusCode};
+use tide_websockets::{WebSocket, WebSocketConnection};
 
 use config::{parent, workspace};
 
@@ -18,7 +19,11 @@ use crate::middleware::HtmlMiddleware;
 
 mod middleware;
 
+static STREAMS: Lazy<Mutex<HashMap<String, WebSocketConnection>>> = Lazy::new(|| Mutex::new(HashMap::new()));
+static EVENT_INSTANT: Lazy<Mutex<Instant>> = Lazy::new(|| Mutex::new(Instant::now()));
+
 pub async fn start_server() -> Result<(), Error> {
+    EVENT_INSTANT.lock().await;
     let listener = listen_modified()?;
     let mut app = tide::new();
     app.at("/ws/:uuid").get(WebSocket::new(ws_handler));
@@ -51,36 +56,38 @@ pub fn listen_modified() -> Result<RecommendedWatcher, Error> {
     Ok(watcher)
 }
 
-static STREAMS: Lazy<Mutex<HashMap<String, WebSocketConnection>>> = Lazy::new(|| Mutex::new(HashMap::new()));
-
-async fn on_changed(event: Event) -> Result<(), Error> {
-    println!("file changed: {:?}", event);
-    for v in STREAMS.lock().expect("lock STREAMS failed").values() {
-        let file = event.paths.first().map(|v| v.to_str().unwrap()).unwrap_or("");
-        if let Err(e) = v.send_string(file.into()).await {
-            error!("send to client failed: {:?}", e);
-        }
-    }
-    Ok(())
-}
-
 async fn ws_handler<S>(request: Request<S>, mut stream: WebSocketConnection) -> tide::Result<()> {
     // open a connection
     let uuid = request.param("uuid")?;
-    STREAMS.lock().expect("lock STREAMS failed").insert(uuid.to_string(), stream.clone());
-
+    STREAMS.lock().await.insert(uuid.to_string(), stream.clone());
     while let Some(v) = stream.next().await {
         match v {
             Ok(message) => debug!("{:?}", message),
             Err(e) => error!("{:?}", e),
         }
     }
-    // while let Some(Ok(Message::Text(input))) = stream.next().await {
-    //     let output: String = input.chars().rev().collect();
-    //     stream.send_string(format!("{} | {}", &input, &output)).await?;
-    // }
-
     // connection closed
-    STREAMS.lock().expect("lock STREAMS failed").remove(uuid);
+    STREAMS.lock().await.remove(uuid);
     Ok(())
+}
+
+// Control the number of concurrency
+async fn on_changed(event: Event) -> Result<(), Error> {
+    let mut instant = EVENT_INSTANT.lock().await;
+    let now = Instant::now();
+    if now.duration_since(*instant) < Duration::from_secs(1) {
+        return Ok(());
+    }
+    *instant = now;
+    send(event).await;
+    Ok(())
+}
+
+async fn send(event: Event) {
+    for v in STREAMS.lock().await.values() {
+        let file = event.paths.first().map(|v| v.to_str().unwrap()).unwrap_or("");
+        if let Err(e) = v.send_string(file.into()).await {
+            error!("send to client failed: {:?}", e);
+        }
+    }
 }

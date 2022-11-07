@@ -24,6 +24,7 @@ chrono = { version = "0.4.22", features = ["serde"] }
 toml = "0.5.9"
 notify = "5.0.0"
 tide = "0.16.0"
+tide-websockets = "0.4.0"
 tl = "0.7.7"
 tera = "1.17.1"
 bimap = "0.6.2"

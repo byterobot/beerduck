@@ -1,5 +1,5 @@
 [package]
-name = "site"
+name = "app"
 version = "0.1.0"
 edition = "2021"
 
@@ -17,7 +17,9 @@ simplelog.workspace = true
 async-std.workspace = true
 async-trait.workspace = true
 anyhow.workspace = true
+once_cell.workspace = true
 tide.workspace = true
+tide-websockets.workspace = true
 notify.workspace = true
 
 config.workspace = true

@@ -1,0 +1,4 @@
+----
+deno bundle src/convert/js/convert.js src/convert/js/convert.js.txt
+// minify convert.js.txt to convert.min.js.txt
+----

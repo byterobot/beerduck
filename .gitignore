@@ -7,3 +7,4 @@
 Cargo.lock
 DB_*_URL
 /config/dev_location
+/asciidoctor/src/convert/js/convert.js.txt

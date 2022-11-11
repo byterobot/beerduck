@@ -9,6 +9,8 @@ use deno_core::op;
 use once_cell::sync::Lazy;
 use serde_json::Value;
 
+mod html5;
+
 static TEXT: Lazy<Mutex<Option<String>>> = Lazy::new(|| Mutex::new(None));
 
 #[op]
@@ -20,17 +22,13 @@ fn op_adoc() -> Result<String, AnyError> {
     }
 }
 
-fn set_text(path: &Path) -> Result<(), Error> {
-    TEXT.lock().unwrap().replace(fs::read_to_string(path)?);
-    Ok(())
-}
+pub async fn convert(text: &str) -> Result<String, Error> {
+    TEXT.lock().unwrap().replace(text.to_string());
 
-pub async fn convert(path: &Path) -> Result<String, Error> {
-    set_text(path)?;
     let ext = Extension::builder().ops(vec![op_adoc::decl(),]).build();
     let options = RuntimeOptions { extensions: vec![ext], ..Default::default()};
     let mut runtime = JsRuntime::new(options);
-    Ok(eval(&mut runtime, include_str!("js/convert.min.js.txt"))?)
+    Ok(eval(&mut runtime, include_str!("../js/bundle/convert.min.js.txt"))?)
 }
 
 fn eval(context: &mut JsRuntime, code: &str) -> Result<String, Error> {
@@ -63,8 +61,8 @@ mod tests {
 
     #[async_test]
     async fn test() {
-        let path = "";
-        let a = convert(&Path::new(path)).await.unwrap();
+        let text = "";
+        let a = convert(text).await.unwrap();
         println!("{}", a);
     }
 }

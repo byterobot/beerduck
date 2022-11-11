@@ -1,4 +1,7 @@
+
+=== Bundle
 ----
-deno bundle src/convert/js/convert.js src/convert/js/convert.js.txt
-// minify convert.js.txt to convert.min.js.txt
+deno bundle src/js/convert.js src/js/bundle/convert.js.txt
 ----
+
+https://deno.land/x/deno@v1.27.2/core/examples?source[run js example]

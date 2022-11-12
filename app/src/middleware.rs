@@ -15,6 +15,10 @@ impl HtmlMiddleware {
 impl<State: Clone + Send + Sync + 'static> Middleware<State> for HtmlMiddleware {
     async fn handle(&self, req: Request<State>, next: Next<'_, State>) -> tide::Result {
         let mut res = next.run(req).await;
+        let mut body = res.take_body().into_string().await?;
+        body.push('\n');
+        body.push_str(include_str!("js/auto_reload.html"));
+        res.set_body(body);
         res.set_content_type(mime::HTML);
         Ok(res)
     }

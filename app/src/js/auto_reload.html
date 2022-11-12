@@ -1,0 +1,20 @@
+<script>
+  (function () {
+      const uuid = () => ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+              (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
+          );
+      const ws = new WebSocket(`ws://${window.location.host}/ws/${uuid()}`);
+      ws.onmessage = async function (_msg) {
+          try {
+              let response = await fetch(window.location.href);
+              if (response.ok) {
+                  document.open();
+                  document.write(await response.text());
+                  document.close();
+              }
+          } catch (e) {
+                console.error(e);
+          }
+      }
+  })();
+</script>

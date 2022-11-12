@@ -4,7 +4,7 @@ use std::path::Path;
 use anyhow::Error;
 use serde_derive::Deserialize;
 
-#[derive(Clone, Deserialize, Default)]
+#[derive(Debug, Clone, Deserialize, Default)]
 pub struct Category {
     pub name: String,
     pub show_name: String,
@@ -34,6 +34,7 @@ impl Category {
                 category.show_name = name;
             }
         }
+
         Ok(category)
     }
 }

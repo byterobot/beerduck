@@ -12,9 +12,7 @@ pub mod publish;
 pub mod template;
 
 pub fn endpoint(path: &str) -> Option<String> {
-    // println!("path: {}", path);
     let endpoint = Endpoint::parse(path);
-    // println!("endpoint: {:?}", endpoint);
     match publish::get(&endpoint) {
         Ok(v) => Some(v),
         Err(e) => {

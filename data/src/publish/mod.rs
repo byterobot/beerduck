@@ -15,9 +15,9 @@ pub mod about;
 pub fn get(point: &Endpoint) -> Result<String, Error> {
     match point {
         Endpoint::Page(category, file) => {
-            let path = parent().join(&workspace().posts)
-                .join(format!("{}/{}.adoc", category, file));
-            let category = Category::from(&parent().join(category))?;
+            let cp = parent().join(&workspace().posts).join(category);
+            let path = cp.join(format!("{}.adoc", file));
+            let category = Category::from(&cp)?;
             page::gen(&Article::from(&path)?, Some(&category))
         }
         Endpoint::About => about::gen(),

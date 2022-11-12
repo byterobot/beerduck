@@ -1,5 +1,3 @@
-use std::fs;
-use std::path::Path;
 use std::sync::Mutex;
 
 use anyhow::{anyhow, Error};
@@ -9,7 +7,7 @@ use deno_core::op;
 use once_cell::sync::Lazy;
 use serde_json::Value;
 
-mod html5;
+pub(crate) mod html5;
 
 static TEXT: Lazy<Mutex<Option<String>>> = Lazy::new(|| Mutex::new(None));
 
@@ -22,7 +20,7 @@ fn op_adoc() -> Result<String, AnyError> {
     }
 }
 
-pub async fn convert(text: &str) -> Result<String, Error> {
+pub fn convert(text: &str) -> Result<String, Error> {
     TEXT.lock().unwrap().replace(text.to_string());
 
     let ext = Extension::builder().ops(vec![op_adoc::decl(),]).build();

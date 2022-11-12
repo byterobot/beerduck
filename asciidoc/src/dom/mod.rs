@@ -43,7 +43,7 @@ pub fn get_toc(doc: &VDom) -> Option<String> {
     let v = doc.get_element_by_id("toc")?
         .get(doc.parser())?
         .as_tag()?
-        .query_selector(doc.parser(),"ol")?
+        .query_selector(doc.parser(),"ul")?
         .next()?
         .get(doc.parser())?
         .outer_html(doc.parser());

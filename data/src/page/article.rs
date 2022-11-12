@@ -1,10 +1,11 @@
+use std::fs;
 use std::path::Path;
 
 use anyhow::Error;
 use chrono::NaiveDate;
 use tl::ParserOptions;
 
-use asciidoc::{self, *};
+use asciidoc::*;
 
 // asciidoc file contents
 pub struct Article {
@@ -23,7 +24,8 @@ pub struct Article {
 
 impl Article {
     pub fn from(file: &Path) -> Result<Self, Error> {
-        let html = asciidoc::convert(file)?;
+        let txt = fs::read_to_string(file)?;
+        let html = convert(&txt)?;
         let mut doc = tl::parse(&html, ParserOptions::new())?;
         let images = get_content_images(&doc).unwrap_or_default();
         resolve_images(&mut doc);

@@ -1,11 +1,9 @@
-use std::borrow::Cow;
-
 use nipper::{Document, Selection};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use tendril::StrTendril;
 
-fn convert(xhtml: &str) -> String {
+pub fn convert(xhtml: &str) -> String {
     let document = Document::from(xhtml);
     header(&document);
 

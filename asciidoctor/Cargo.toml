@@ -11,12 +11,8 @@ serde_json.workspace = true
 deno_core.workspace = true
 once_cell.workspace = true
 regex.workspace = true
-#html5ever.workspace = true
-#scraper.workspace = true
-#tl.workspace = true
-#lol_html.workspace = true
 nipper.workspace = true
-#kuchiki.workspace = true
+tendril.workspace = true
 [dev-dependencies]
 futures-await-test.workspace = true
 asciidoc.workspace = true

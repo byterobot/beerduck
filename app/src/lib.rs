@@ -51,7 +51,10 @@ pub fn listen_modified() -> Result<RecommendedWatcher, Error> {
         }
     }, notify::Config::default())?;
     watcher.watch(&parent().join(&workspace().posts), RecursiveMode::Recursive)?;
-    watcher.watch(&parent().join(&workspace().theme.self_dir), RecursiveMode::Recursive)?;
+    watcher.watch(&parent().join(&workspace().theme.static_.js), RecursiveMode::Recursive)?;
+    watcher.watch(&parent().join(&workspace().theme.static_.css), RecursiveMode::Recursive)?;
+    watcher.watch(&parent().join(&workspace().theme.static_.images), RecursiveMode::Recursive)?;
+    watcher.watch(&parent().join(&workspace().theme.static_.fonts), RecursiveMode::Recursive)?;
     watcher.watch(&parent().join(&workspace().assets.images), RecursiveMode::Recursive)?;
     Ok(watcher)
 }

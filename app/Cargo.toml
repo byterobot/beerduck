@@ -20,6 +20,7 @@ anyhow.workspace = true
 once_cell.workspace = true
 tide.workspace = true
 tide-websockets.workspace = true
+percent-encoding.workspace = true
 notify.workspace = true
 
 config.workspace = true

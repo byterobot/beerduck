@@ -10,6 +10,7 @@ use async_std::task::block_on;
 use log::{debug, error, info};
 use notify::{Event, RecommendedWatcher, RecursiveMode, Watcher};
 use once_cell::sync::Lazy;
+use percent_encoding::percent_decode_str;
 use tide::{Request, StatusCode};
 use tide_websockets::{WebSocket, WebSocketConnection};
 
@@ -29,15 +30,23 @@ pub async fn start_server() -> Result<(), Error> {
     app.at("/ws/:uuid").get(WebSocket::new(ws_handler));
     app.at("/assets/images").serve_dir(parent().join(&workspace().assets.images))?;
     app.at("/static").serve_dir(parent().join(&workspace().theme.static_.self_dir))?;
-    app.at("*").with(HtmlMiddleware::new()).get(|req: Request<_>| async move {
-        match data::endpoint(req.url().path()) {
-            None => Err(tide::Error::from_str(StatusCode::NotFound, "404 Not Found")),
-            Some(html) => Ok(html)
-        }
-    });
+    app.at("").with(HtmlMiddleware::new()).get(endpoint);
+    app.at("*").with(HtmlMiddleware::new()).get(endpoint);
     info!("listening at 0.0.0.0:2020");
     app.listen("0.0.0.0:2020").await?;
     Ok(())
+}
+
+async fn endpoint(req: Request<()>) -> tide::Result<String> {
+    let path = match percent_decode_str(req.url().path()).decode_utf8() {
+        Ok(v) => v.to_string(),
+        Err(e) => Err(tide::Error::from_str(StatusCode::NotFound, e))?,
+    };
+
+    match data::endpoint(path.as_str()) {
+        None => Err(tide::Error::from_str(StatusCode::NotFound, "404 Not Found")),
+        Some(html) => Ok(html)
+    }
 }
 
 pub fn listen_modified() -> Result<RecommendedWatcher, Error> {

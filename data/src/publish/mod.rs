@@ -21,7 +21,8 @@ pub fn get(point: &Endpoint) -> Result<String, Error> {
             page::gen(&Article::from(&path)?, Some(&category))
         }
         Endpoint::About => about::gen(),
-        Endpoint::Category(name) => category::gen(&parent().join(name)),
+        Endpoint::Category(name) =>
+            category::gen(&parent().join(&workspace().posts).join(name)),
         Endpoint::Categories => categories::gen(),
         Endpoint::Index => index::gen(),
         Endpoint::Unknown(url_path) => Err(anyhow!("404 Not Found {}", url_path)),

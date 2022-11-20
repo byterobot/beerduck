@@ -12,6 +12,4 @@ notify.workspace = true
 tera.workspace = true
 bimap.workspace = true
 once_cell.workspace = true
-minify-html-onepass.workspace = true
-
 config.workspace = true

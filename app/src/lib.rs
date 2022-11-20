@@ -87,7 +87,7 @@ async fn ws_handler<S>(request: Request<S>, mut stream: WebSocketConnection) -> 
 async fn on_changed(event: Event) -> Result<(), Error> {
     let mut instant = EVENT_INSTANT.lock().await;
     let now = Instant::now();
-    if now.duration_since(*instant) < Duration::from_secs(1) {
+    if now.duration_since(*instant) < Duration::from_secs(5) {
         return Ok(());
     }
     *instant = now;

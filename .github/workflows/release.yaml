@@ -2,103 +2,70 @@ name: Release
 
 on:
   push:
-    branches: [ "master" ]
+    #    branches: [ "master" ]
     tags: ["v[0-9]+.[0-9]+.[0-9]+*"]
-  pull_request:
-    branches: [ "master" ]
+#  pull_request:
+#    branches: [ "master" ]
 
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   CARGO_TERM_COLOR: always
+  APP_NAME: beerduck
 
 jobs:
-  macos:
-    runs-on: macos-latest # macOS Big Sur 11
+  changelog:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Install target
-        run: rustup update && rustup target add x86_64-apple-darwin aarch64-apple-darwin
-      - name: Build x86_64
-        run: cargo build --release --target=x86_64-apple-darwin
-      - name: Upload binaries to release
+      - uses: taiki-e/create-gh-release-action@v1
+        with:
+          changelog: CHANGELOG.md
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    strategy:
+      matrix:
+        entry:
+          -
+            os: macos-latest
+            target: x86_64-apple-darwin
+            suffix: ""
+          -
+            os: macos-latest
+            target: aarch64-apple-darwin
+            suffix: ""
+          -
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            suffix: ""
+          -
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            suffix: ""
+          -
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            suffix: ".exe"
+          -
+            os: windows-latest
+            target: i686-pc-windows-msvc
+            suffix: ".exe"
+
+    runs-on: ${{ matrix.entry.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Add target
+        run: rustup update && rustup target add ${{ matrix.entry.target }}
+      - name: Build binary
+        run: cargo build --release --target=${{ matrix.entry.target }}
+      - name: Compress zip
+        uses: vimtor/action-zip@v1
+        with:
+          files: target/${{ matrix.entry.target }}/release/${{env.APP_NAME}}${{ matrix.entry.suffix }}
+          dest: target/${{ matrix.entry.target }}/release/${{env.APP_NAME}}-${{ matrix.entry.target }}.zip
+      - name: Upload ${{env.APP_NAME}}-${{ matrix.entry.target }}.zip
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: target/x86_64-apple-darwin/release/app
-          asset_name: app
+          file: target/${{ matrix.entry.target }}/release/${{env.APP_NAME}}-${{ matrix.entry.target }}.zip
+          asset_name: ${{env.APP_NAME}}-${{ matrix.entry.target }}.zip
           tag: ${{ github.ref }}
-
-
-#      - name: Build ARM
-#        run: cargo build --release --target=aarch64-apple-darwin
-#      - name: Upload assets
-#        run: |
-#          mv ./target/x86_64-apple-darwin/release/app ./app-x86_64-apple-darwin
-#          ./.github/workflows/upload_asset.sh ./app-x86_64-apple-darwin $GITHUB_TOKEN
-#          mv ./target/aarch64-apple-darwin/release/app ./app-aarch64-apple-darwin
-#          ./.github/workflows/upload_asset.sh ./app-aarch64-apple-darwin $GITHUB_TOKEN
-          
-
-# tag version ${GITHUB_REF##*/}
-
-#
-#  windows:
-#    runs-on: windows-latest # Windows Server 2022
-#
-#    defaults:
-#      run:
-#        shell: bash
-#
-#    steps:
-#      - uses: actions/checkout@v3
-#      - name: Test
-#        run: cargo test --release
-#      - name: Build
-#        run: cargo build --release
-#      - name: Upload portable executable
-#        run: |
-#          cp ./target/release/alacritty.exe ./Alacritty-${GITHUB_REF##*/}-portable.exe
-#          ./.github/workflows/upload_asset.sh \
-#            ./Alacritty-${GITHUB_REF##*/}-portable.exe $GITHUB_TOKEN
-#      - name: Install WiX
-#        run: nuget install WiX
-#      - name: Crate msi installer
-#        run: |
-#          ./WiX.*/tools/candle.exe -nologo -arch "x64" -ext WixUIExtension -ext WixUtilExtension \
-#            -out "./alacritty.wixobj" "alacritty/windows/wix/alacritty.wxs"
-#          ./WiX.*/tools/light.exe -nologo -ext WixUIExtension -ext WixUtilExtension \
-#            -out "./Alacritty-${GITHUB_REF##*/}-installer.msi" -sice:ICE61 -sice:ICE91 \
-#            "./alacritty.wixobj"
-#      - name: Upload msi installer
-#        run: |
-#          ./.github/workflows/upload_asset.sh \
-#            ./Alacritty-${GITHUB_REF##*/}-installer.msi $GITHUB_TOKEN
-#
-#  linux:
-#    runs-on: ubuntu-latest # Ubuntu 20.04
-#
-#    steps:
-#      - uses: actions/checkout@v3
-#      - name: Install dependencies
-#        run: |
-#          sudo apt-get install cmake pkg-config libfreetype6-dev libfontconfig1-dev \
-#            libxcb-xfixes0-dev libxkbcommon-dev python3
-#      - name: Test
-#        run: cargo test --release
-#      - name: Gzip manpage
-#        run: |
-#          gzip -c "./extra/alacritty.man" > "./alacritty.1.gz"
-#          gzip -c "./extra/alacritty-msg.man" > "./alacritty-msg.1.gz"
-#      - name: Upload Assets
-#        run: |
-#          mv ./extra/logo/alacritty-term.svg ./Alacritty.svg
-#          ./.github/workflows/upload_asset.sh ./Alacritty.svg $GITHUB_TOKEN
-#          ./.github/workflows/upload_asset.sh ./alacritty.1.gz $GITHUB_TOKEN
-#          ./.github/workflows/upload_asset.sh ./alacritty-msg.1.gz $GITHUB_TOKEN
-#          ./.github/workflows/upload_asset.sh ./extra/completions/alacritty.bash $GITHUB_TOKEN
-#          ./.github/workflows/upload_asset.sh ./extra/completions/alacritty.fish $GITHUB_TOKEN
-#          ./.github/workflows/upload_asset.sh ./extra/completions/_alacritty $GITHUB_TOKEN
-#          ./.github/workflows/upload_asset.sh ./extra/linux/Alacritty.desktop $GITHUB_TOKEN
-#          ./.github/workflows/upload_asset.sh ./extra/alacritty.info $GITHUB_TOKEN
-#          ./.github/workflows/upload_asset.sh ./alacritty.yml $GITHUB_TOKEN
-#

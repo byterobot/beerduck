@@ -11,12 +11,18 @@ pub fn convert(xhtml: &str) -> String {
     figure(&content);
     paragraph(&content);
     block(&content);
+    quote_block(&content);
     section(&content);
 
     document.html().to_string()
 }
 
 fn section(content: &Selection) {
+    let mut preamble = content.select("#preamble");
+    let inner = inner_html(preamble.html());
+    let html = format!(r#"<section id="preamble">{}</section>"#, inner);
+    preamble.replace_with_html(html);
+
     for mut sec in content.select(".sect2").iter() {
         let inner = inner_html(sec.html());
         let html = format!(r#"<section class="doc-section level-2">{}</section>"#, inner);
@@ -53,6 +59,31 @@ fn block(content: &Selection) {
             block.remove_class("literalblock");
             block.add_class("literal-block");
         }
+    }
+}
+
+fn quote_block(content: &Selection) {
+    for mut block in content.select(".quoteblock").iter() {
+        let text = block.select("blockquote").text();
+
+        let foot = block.select(".attribution");
+        let f = match foot.exists() {
+            true => {
+                let text = foot.text().replacen("—", "", 1);
+                Some(format!("<footer>&#8212; <cite>{}</cite></footer>", text.trim()))
+            }
+            _ => None,
+        };
+
+        let mut inner = format!("<p>{}</p>", text);
+        if let Some(v) = &f {
+            inner.push_str(v);
+        }
+
+        block.set_html(format!("<blockquote>{}</blockquote>", inner));
+
+        block.remove_class("quoteblock");
+        block.add_class("quote-block");
     }
 }
 

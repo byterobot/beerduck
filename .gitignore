@@ -7,5 +7,5 @@
 Cargo.lock
 DB_*_URL
 /config/dev_location
-/asciidoc/temp
 /asciidoc/src/js/bundle/convert.js.txt
+/asciidoc/tests/temp/

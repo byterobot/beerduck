@@ -8,11 +8,11 @@ use asciidoc::hybrid::Hybrid;
 
 #[async_test]
 async fn test() {
-    let path = "";
-    let text = fs::read_to_string(path).unwrap();
+    let adoc_file = "";
+    let text = fs::read_to_string(adoc_file).unwrap();
     let hyper = Hybrid::parse(&text);
 
-    let temp = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("temp");
+    let temp = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/temp");
     println!("{:?}", temp);
 
     // convert xhtml

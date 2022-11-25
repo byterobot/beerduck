@@ -51,7 +51,7 @@ fn resolve_content_image(path: &str) -> String {
         _ => {
             let dir = workspace().publish.static_.images
                 .replacen(&workspace().publish.self_dir, "", 1);
-            format!("/{}/{}", dir, make_relative_path(path))
+            format!("/{}/{}", make_relative_path(&dir), make_relative_path(path))
         },
     }
 }

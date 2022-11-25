@@ -5,7 +5,7 @@ pub struct Hybrid {
 
 impl Hybrid {
     pub fn parse(text: &str) -> Self {
-        if !(text.starts_with("+\n") || text.starts_with("-\n") || text.starts_with("=\n")) {
+        if !(text.starts_with("@\n") || text.starts_with("#\n") || text.starts_with("$\n")) {
             return Self { _source: None, target: text.into(), };
         }
 
@@ -13,13 +13,13 @@ impl Hybrid {
         let mut way = (&mut origin, Some(&mut target));
         for line in text.split("\n") {
             match line {
-                "-" => way = (&mut origin, None),
-                "+" => way = (&mut target, None),
-                "=" => way = (&mut origin, Some(&mut target)),
+                "@" => way = (&mut origin, None),
+                "$" => way = (&mut target, None),
+                "#" => way = (&mut origin, Some(&mut target)),
                 _ => {}
             }
             let line = match line {
-                "-" | "+" | "=" => "",
+                "@" | "#" | "$" => "",
                 _ => line,
             };
 

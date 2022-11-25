@@ -83,6 +83,6 @@ mod tests {
             .get(doc.parser()).unwrap()
             .outer_html(doc.parser());
 
-        println!("{}", c);
+        println!("{}", v);
     }
 }

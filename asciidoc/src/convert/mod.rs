@@ -60,7 +60,7 @@ mod tests {
     #[async_test]
     async fn test() {
         let text = "";
-        let a = convert(text).await.unwrap();
+        let a = convert(text).unwrap();
         println!("{}", a);
     }
 }

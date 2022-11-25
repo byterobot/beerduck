@@ -12,6 +12,7 @@ pub fn convert(xhtml: &str) -> String {
     paragraph(&content);
     block(&content);
     quote_block(&content);
+    admonition_block(&content);
     section(&content);
 
     document.html().to_string()
@@ -87,6 +88,10 @@ fn quote_block(content: &Selection) {
     }
 }
 
+fn admonition_block(_content: &Selection) {
+
+}
+
 fn paragraph(content: &Selection) {
     for mut item in content.select(".paragraph").iter() {
         if let Some(child) = item.children().iter().next() {
@@ -95,8 +100,9 @@ fn paragraph(content: &Selection) {
     }
 
     for mut item in content.select(".ulist li").iter() {
-        if let Some(child) = item.children().iter().next() {
-            item.set_html(inner_html(child.html()));
+        let children = item.children();
+        if children.length() == 1 {
+            item.set_html(inner_html(children.first().html()));
         }
     }
 }

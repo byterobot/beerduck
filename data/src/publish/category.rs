@@ -18,7 +18,12 @@ pub fn gen(path: &Path) -> Result<String, Error> {
 }
 
 pub fn write(path: &Path) -> Result<(), Error> {
-    let (category, articles) = create(path)?;
+    let (category, mut articles) = create(path)?;
+    match category.topic {
+        true => articles.sort_by(|a, b| a.1.created_at.cmp(&b.1.created_at)),
+        _ => articles.sort_by(|a, b| b.1.created_at.cmp(&a.1.created_at)),
+    }
+
     for (name, article) in &articles {
         page::write(&name, article, Some(&category))?;
     }

@@ -16,7 +16,9 @@ pub fn gen() -> Result<String, Error> {
 }
 
 pub fn write() -> Result<(), Error> {
-    let (categories, paths) = create()?;
+    let (mut categories, paths) = create()?;
+    categories.sort_by(|a, b| a.show_name.cmp(&b.show_name));
+
     for path in paths.as_slice() {
         category::write(path)?;
     }

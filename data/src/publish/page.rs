@@ -4,7 +4,7 @@ use std::path::Path;
 use anyhow::Error;
 use chrono::{Datelike, NaiveDate};
 
-use config::{make_relative_path, parent, site, workspace};
+use config::{to_relative, parent, site, workspace};
 use render::Template;
 
 use crate::page::{Article, Category};
@@ -23,7 +23,7 @@ pub fn write<'a>(file_stem: &'a str, article: &'a Article, category: Option<&'a 
     copy_images(&article.images)?;
     let date = article.created_at.as_ref().unwrap_or(&NaiveDate::MIN);
     let target = parent().join(&workspace().publish.self_dir)
-        .join(make_relative_path(&page_url(file_stem, date, category)).as_ref());
+        .join(to_relative(&page_url(file_stem, date, category)).as_ref());
     match category {
         Some(c) =>
             Template::Article.render_write(PageTpl::from(&article, c), &target)?,
@@ -34,7 +34,7 @@ pub fn write<'a>(file_stem: &'a str, article: &'a Article, category: Option<&'a 
 
 fn copy_images(images: &[String]) -> Result<(), Error> {
     let files = images.iter().map(|v| {
-        let name = make_relative_path(v);
+        let name = to_relative(v);
         let src = parent().join(&workspace().assets.images).join(name.as_ref());
         let target = parent().join(&workspace().publish.static_.images).join(name.as_ref());
         (src, target)

@@ -62,8 +62,8 @@ pub(crate) static PARENT: Lazy<PathBuf> = Lazy::new(|| {
     }
 });
 
-pub fn make_relative_path(txt: &str) -> Cow<str> {
-    REG_ABSOLUTE.replace(txt, "")
+pub fn to_relative(path: &str) -> Cow<str> {
+    REG_ABSOLUTE.replace(path, "")
 }
 
 // static REG: Lazy<Regex> = Lazy::new(|| Regex::new(r"\.(adoc)$").unwrap());

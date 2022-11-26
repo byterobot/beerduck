@@ -51,8 +51,6 @@ fn eval(context: &mut JsRuntime, code: &str) -> Result<String, Error> {
 
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
-
     use futures_await_test::async_test;
 
     use crate::convert::convert;

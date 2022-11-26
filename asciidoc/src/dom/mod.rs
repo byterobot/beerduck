@@ -43,7 +43,7 @@ pub fn get_toc(doc: &VDom) -> Option<String> {
     let v = doc.get_element_by_id("toc")?
         .get(doc.parser())?
         .as_tag()?
-        .query_selector(doc.parser(),"ul")?
+        .query_selector(doc.parser(),"ol")?
         .next()?
         .get(doc.parser())?
         .outer_html(doc.parser());
@@ -68,9 +68,6 @@ pub fn get_content(doc: &VDom) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use tl::queryselector::iterable::QueryIterable;
-
-    use super::*;
 
     #[test]
     fn test() {

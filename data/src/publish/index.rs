@@ -27,6 +27,7 @@ fn create(write: bool) -> Result<Option<String>, Error> {
         article_items.extend(tpl.items);
     }
 
+    article_items.sort_by(|a, b| b.created_at.cmp(&a.created_at));
     let index_tpl = IndexTpl::from(article_items);
     let target = parent().join(&workspace().publish.self_dir).join("index.html");
     match write {

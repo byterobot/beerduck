@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.4] - 2022-11-26
+- Peel off asciidoctor
+- Order index and category items
+
 ## [0.1.3] - 2022-11-26
 - Change hyper tag
 - Fixed `p` tags inside `li`
